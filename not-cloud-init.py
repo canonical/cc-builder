@@ -76,14 +76,15 @@ def get_apt_repositories() -> list[AptRepository]:
 
     repositories = []
 
-    sources_list = []
-    # Read main sources.list
-    with open(sources_list_path, "r") as sources_list_file:
-        for line in sources_list_file:
-            if line.startswith("deb"):
-                sources_list.append(parse_repository_line(line.strip()))
-    print(f"{len(sources_list)} repositories found in file: {sources_list_path}")
-    repositories += sources_list
+    # sources_list = []
+    # # Read main sources.list
+    # with open(sources_list_path, "r") as sources_list_file:
+    #     for line in sources_list_file:
+    #         if line.startswith("deb"):
+    #             sources_list.append(parse_repository_line(line.strip()))
+    # print(f"{len(sources_list)} repositories found in file: {sources_list_path}")
+    # pprint([repo.__dict__ for repo in sources_list])
+    # repositories += sources_list
 
     sources_list_d = []
     # # Read files in sources.list.d directory
@@ -102,6 +103,7 @@ def get_apt_repositories() -> list[AptRepository]:
                         sources_list_d.append(parse_repository_line(line.strip(), file_path=file_path))
     print(f"{len(sources_list_d)} repositories found in directory: {sources_list_d_path}")
     repositories += sources_list_d
+
     return repositories
 
 
@@ -135,32 +137,6 @@ def parse_repository_line(line: str, file_path=None) -> AptRepository:
     else:
         repo_info["components"] = None
     return AptRepository(**repo_info)
-
-
-def get_apt_repositories_with_commands():
-    # Use APT commands to get repositories
-    result_main = subprocess.run("cat /etc/apt/sources.list", shell=True, stdout=subprocess.PIPE, text=True)
-    result_d = subprocess.run("cat /etc/apt/sources.list.d/*", shell=True, stdout=subprocess.PIPE, text=True)
-
-    repositories = result_main.stdout.strip().split("\n")
-    repositories.extend(result_d.stdout.strip().split("\n"))
-
-    return repositories
-
-
-def gather() -> dict:
-    return {
-        "AptRepositories": {
-            "repositories": get_apt_repositories(),
-            "repositories_with_commands": get_apt_repositories_with_commands(),
-        }
-    }
-
-
-if VERBOSE:
-    pprint(gather()["AptRepositories"]["repositories"])
-    print(len(gather()["AptRepositories"]["repositories"]))
-
 
 def get_installed_apt_packages_from_dpkg():
     # Run dpkg -l command to get a list of installed packages
