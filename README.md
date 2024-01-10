@@ -10,18 +10,24 @@ I am looking to test out the reliability and robustness of the tool in its curre
 
 ## Capabilities:
 
-- [ ] Apt sources (.list files) from sources.list.d/ 
-  - [ ] Gather from system
-  - [ ] Export into cloud config
+- [x] Apt sources (.list files) from sources.list.d/ 
+  - [x] Gather from system
+  - [x] Export into cloud config
 - [ ] Apt sources from sources.list
-  - [ ] Gather from system
+  - [x] Gather from system
   - [ ] Export into cloud config
-- [ ] Deb822 Apt Sources (.sources files) from sources.list.d/
-  - [ ] Gather from system
-  - [ ] Export into cloud config
+- [x] Deb822 Apt Sources (.sources files) from sources.list.d/
+  - [x] Gather from system
+  - [x] Export into cloud config
 - [ ] Snaps installed on system
-
-- [ ] 
+  - [x] Gather from system
+  - [x] Export into cloud config
+- [x] "Manually" installed apt packages (using aptmark showmanual)
+  - [x] Gather from system
+  - [x] Export into cloud config
+- [x] Detailed operating system info 
+  - [x] Gather from system
+  - [x] Export into cloud config (in "commented out" metadata footer of cloud config)
 
 
 
@@ -29,7 +35,9 @@ I am looking to test out the reliability and robustness of the tool in its curre
 
 ## What does it do?
 
-This tool gathers information o
+This tool gathers information from your system then generates two cloud config files: 
+- one with apt packages from aptmark showmanual
+- one with apt packages from custom apt history parsing
 
 ## Gathering feedback
 
