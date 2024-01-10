@@ -19,7 +19,7 @@ I am looking to test out the reliability and robustness of the tool in its curre
 - [x] Deb822 Apt Sources (.sources files) from sources.list.d/
   - [x] Gather from system
   - [x] Export into cloud config
-- [ ] Snaps installed on system
+- [x] Snaps installed on system
   - [x] Gather from system
   - [x] Export into cloud config
 - [x] "Manually" installed apt packages (using aptmark showmanual)
