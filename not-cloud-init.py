@@ -7,6 +7,7 @@ from typing import Optional
 import re
 import subprocess
 from pprint import pprint
+import yaml
 
 VERBOSE = False
 # VERBOSE = True
@@ -69,9 +70,19 @@ def get_deb822_apt_repositories():
 #     print(deb822_to_one_line(deb822_source))
 
 
+def get_sources_list_lines() -> list[str]:
+    sources_list = []
+    sources_list_path = "/etc/apt/sources.list"
+    # Read main sources.list
+    with open(sources_list_path, "r") as sources_list_file:
+        for line in sources_list_file:
+            if line.startswith("deb"):
+                sources_list.append(line.strip())
+    return sources_list
+
+
 def get_apt_repositories() -> list[AptRepository]:
     # APT configuration files
-    sources_list_path = "/etc/apt/sources.list"
     sources_list_d_path = "/etc/apt/sources.list.d/"
 
     repositories = []
@@ -138,21 +149,6 @@ def parse_repository_line(line: str, file_path=None) -> AptRepository:
         repo_info["components"] = None
     return AptRepository(**repo_info)
 
-def get_installed_apt_packages_from_dpkg():
-    # Run dpkg -l command to get a list of installed packages
-    result = subprocess.run("dpkg -l", shell=True, stdout=subprocess.PIPE, text=True)
-
-    # Parse the output to extract package names
-    installed_packages = []
-    lines = result.stdout.strip().split("\n")
-    for line in lines[5:]:  # Skip the header lines
-        package_info = line.split()
-        if len(package_info) >= 2:
-            package_name = package_info[1]
-            installed_packages.append(package_name)
-
-    return installed_packages
-
 
 def get_installed_apt_packages_from_apt_mark():
     result = subprocess.run("apt-mark showmanual", shell=True, stdout=subprocess.PIPE, text=True)
@@ -192,34 +188,11 @@ def get_installed_apt_packages_from_history():
     actually_installed_packages.sort()
     return actually_installed_packages
 
-
-def gather():
-    # Return the results
-    return {
-        "AptPackages": {
-            "packages_dpkg": get_installed_apt_packages_from_dpkg(),
-            "packages_apt_mark": get_installed_apt_packages_from_apt_mark(),
-            "packages_apt_history": get_installed_apt_packages_from_history(),
-        }
-    }
-
-
-# result = gather()
-print("=======================================================================================")
-print("===================================== Bad Methods =====================================")
-print("=======================================================================================")
-packages_dpkg = get_installed_apt_packages_from_dpkg()
-print("Number of packages returned by `dpkg -l`:", len(packages_dpkg))
-if VERBOSE:
-    print(packages_dpkg)
 packages_apt_mark = get_installed_apt_packages_from_apt_mark()
 print("Number of packages returned by `apt-mark showmanual`:", len(packages_apt_mark))
-if VERBOSE:
-    print(packages_apt_mark)
-print("================================ My Best Current Method ===============================")
-packages_apt_history = get_installed_apt_packages_from_history()
-print("Number of packages found in apt history:", len(packages_apt_history))
-print(packages_apt_history)
+# packages_apt_history = get_installed_apt_packages_from_history()
+# print("Number of packages found in apt history:", len(packages_apt_history))
+# print(packages_apt_history)
 
 """
 Exmaple output from `snap list`:
@@ -287,7 +260,6 @@ for snap in installed_snaps:
 #######################################################################################################################
 
 
-import yaml
 
 apt_repos: list[AptRepository] = get_deb822_apt_repositories() + get_apt_repositories()
 
@@ -336,7 +308,7 @@ snap_cloud_config = generate_snaps_cloud_config(snap_packages)
 
 outputs = {
     "cloud_config_apt_mark": [apt_mark_cloud_config, snap_cloud_config],
-    "cloud_config_apt_history": [apt_history_cloud_config, snap_cloud_config],
+    # "cloud_config_apt_history": [apt_history_cloud_config, snap_cloud_config],
 }
 
 os_version_metadata = subprocess.run("cat /etc/os-release", shell=True, stdout=subprocess.PIPE, text=True).stdout
@@ -351,9 +323,17 @@ for output_name, cloud_config_list in outputs.items():
             yaml.dump(cloud_config, f, default_flow_style=False)
             f.write
 
+    # Write additional metadata to the end of the file
     with open(f"{output_name}.yaml", "a") as f:
         f.write("\n\n")
         f.write("#" * 80 + "\n")
+        f.write(" Additional Gathered Metadata and Info ".center(80, "#") + "\n\n")
+        # f.write("#" * 80 + "\n\n")
         lines = ["# " + line for line in os_version_metadata.splitlines(keepends=True)]
         f.writelines(lines)
+        f.write("\n")
+        f.write("# Active apt sources in /etc/apt/sources.list:\n")
+        f.write("\n".join(["# " + line for line in get_sources_list_lines()]))
+        f.write("\n" + "#" * 80 + "\n")
         f.write("#" * 80 + "\n")
+
