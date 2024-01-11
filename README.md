@@ -60,3 +60,8 @@ If you end up testing on multiple machines, you can just fill out the form multi
 page of the form to submit the cloud-config files. 
 
 
+## Submitting Issues Via GitHub
+In addition to the feedback form, feel free to open an issue against this repo for any bugs or features you'd like to see addressed. 
+
+Thanks! 
+
