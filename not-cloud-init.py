@@ -308,7 +308,7 @@ snap_cloud_config = generate_snaps_cloud_config(snap_packages)
 
 outputs = {
     "cloud_config_apt_mark": [apt_mark_cloud_config, snap_cloud_config],
-    # "cloud_config_apt_history": [apt_history_cloud_config, snap_cloud_config],
+    "cloud_config_apt_history": [apt_history_cloud_config, snap_cloud_config],
 }
 
 os_version_metadata = subprocess.run("cat /etc/os-release", shell=True, stdout=subprocess.PIPE, text=True).stdout
