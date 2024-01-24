@@ -1,5 +1,27 @@
-/.venv
-/.vscode
-/history.log.1
-/history.log.1.gz
-/history.log.2
+# Python build and other items
+__pycache__/
+.eggs
+*.egg-info/
+build
+dist
+venv
+
+# Testing items
+.tox/
+.coverage
+.noseids
+cover
+
+# Editors/tools
+.idea/
+.vscode/
+.mypy_cache/
+.pytest_cache/
+.python-version
+
+# others:
+.env
+.venv
+*.ignore*
+notes.md
+notes.txt
