@@ -1,13 +1,16 @@
 import dataclasses
+import logging
 import os
 import re
 import subprocess
 from typing import Optional
+
+import yaml
+
 from custom_types import BaseConfig
 
-import logging
-
 LOG = logging.getLogger(__name__)
+
 
 @dataclasses.dataclass
 class AptRepository:
@@ -19,6 +22,7 @@ class AptRepository:
     uri: str
     suite: str
     components: Optional[list[str]]
+
 
 @dataclasses.dataclass
 class AptPackage:
@@ -33,6 +37,7 @@ def deb822_to_one_line(deb822_repo):
     repo_line += deb822_repo["components"]
     return repo_line
 
+
 def get_sources_list_lines() -> list[str]:
     sources_list = []
     sources_list_path = "/etc/apt/sources.list"
@@ -42,6 +47,7 @@ def get_sources_list_lines() -> list[str]:
             if line.startswith("deb"):
                 sources_list.append(line.strip())
     return sources_list
+
 
 def parse_repository_line(line: str, file_path=None) -> AptRepository:
     # if file_path:
@@ -74,8 +80,9 @@ def parse_repository_line(line: str, file_path=None) -> AptRepository:
         repo_info["components"] = None
     return AptRepository(**repo_info)
 
+
 def get_apt_repositories() -> list[str]:
-    LOG.info("Gathering apt repositories")
+    LOG.debug("Gathering apt repositories")
     sources_list_d_path = "/etc/apt/sources.list.d/"
     deb822_sources_repos = []
     apt_list_repos = []
@@ -93,14 +100,16 @@ def get_apt_repositories() -> list[str]:
         elif filename.endswith(".sources"):
             with open(file_path, "r") as deb822_sources_file:
                 relevant_lines = [
-                    l for l in deb822_sources_file.readlines() if l.split(":")[0] in ("Types", "URIs", "Suites", "Components")
+                    l
+                    for l in deb822_sources_file.readlines()
+                    if l.split(":")[0] in ("Types", "URIs", "Suites", "Components")
                 ]
                 parsed_repo = {l.split(":")[0].lower(): l.split(":", maxsplit=1)[1].strip() for l in relevant_lines}
                 deb822_sources_repos.append(
                     AptRepository(
                         original_repo_line=None,
                         repo_line_without_options=deb822_to_one_line(parsed_repo),
-                        name=filename.replace(".sources",".list"),
+                        name=filename.replace(".sources", ".list"),
                         archive_type=None,
                         options=None,
                         uri=parsed_repo["uris"],
@@ -108,9 +117,10 @@ def get_apt_repositories() -> list[str]:
                         components=parsed_repo["components"].split(),
                     )
                 )
-    LOG.info(f"Found {len(apt_list_repos)} old-style one-line repositories in sources.list.d")
-    LOG.info(f"Found {len(deb822_sources_repos)} new-style deb822 repositories in sources.list.d")
+    LOG.debug(f"Found {len(apt_list_repos)} old-style one-line repositories in sources.list.d")
+    LOG.debug(f"Found {len(deb822_sources_repos)} new-style deb822 repositories in sources.list.d")
     return apt_list_repos + deb822_sources_repos
+
 
 def get_simplified_apt_source_line(line: str) -> str:
     if re.findall(r"\[.*?\]", line):
@@ -119,25 +129,31 @@ def get_simplified_apt_source_line(line: str) -> str:
     line = line.replace("  ", " ")  # replace double spaces with single space
     return line
 
+
 def get_apt_packages():
-    LOG.info("Gathering installed apt packages")
+    LOG.debug("Gathering installed apt packages")
     result = subprocess.run("apt-mark showmanual", shell=True, stdout=subprocess.PIPE, text=True)
     lines = result.stdout.strip().split("\n")
-    return [AptPackage(name=line.strip()) for line in lines]
+    result = [AptPackage(name=line.strip()) for line in lines]
+    LOG.debug(f"Found {len(result)} installed apt packages")
+    return result
 
 
 @dataclasses.dataclass
 class AptConfig(BaseConfig):
-    repos: list[AptRepository] = dataclasses.field(default_factory=get_apt_repositories)
-    packages: list[AptPackage] = dataclasses.field(default_factory=get_apt_packages)
-    
+    repos: list[AptRepository] = dataclasses.field(default_factory=list)
+    packages: list[AptPackage] = dataclasses.field(default_factory=list)
+
+    def gather(self):
+        LOG.debug("Gathering AptConfig")
+        self.repos = get_apt_repositories()
+        self.packages = get_apt_packages()
+
     def generate_cloud_config(self) -> dict:
         known_sources = [repo for repo in self.repos if repo.name != "UNKNOWN"]
         return {
             "apt": {
-                "sources": {
-                    repo.name: {"source": repo.repo_line_without_options} for repo in known_sources
-                },
+                "sources": {repo.name: {"source": repo.repo_line_without_options} for repo in known_sources},
                 "packages": [package.name for package in self.packages],
             }
         }
