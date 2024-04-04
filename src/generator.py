@@ -24,6 +24,9 @@ LOG = logging.getLogger(__name__)
 def create_cloud_init_config(
     output_path: str,
     hostname_enabled: bool = False,
+    gather_public_keys: bool = False,
+    password: str = None,
+    **kwargs,
 ):
     # get current user
     result = subprocess.run("whoami", shell=True, stdout=subprocess.PIPE, text=True)
@@ -33,8 +36,8 @@ def create_cloud_init_config(
     configs: list[BaseConfig] = [
         AptConfig(),
         SnapConfig(),
-        SSHConfig(),
-        UserConfig(),
+        SSHConfig(gather_public_keys=gather_public_keys),
+        UserConfig(plaintext_password=password),
     ]
     # enable optional modules
     if hostname_enabled:
@@ -52,11 +55,11 @@ def create_cloud_init_config(
         cloud_config.update(cc_dict)
 
     if cloud_config["users"][0]["shell"] == "/usr/bin/zsh":
-        if "zsh" in cloud_config["apt"]["packages"]:
+        if "zsh" in cloud_config["packages"]:
             LOG.debug("User has zsh as shell, but zsh already in list of packages.")
         else:
             LOG.debug("User has zsh as shell, so adding zsh to list of packages.")
-            cloud_config["apt"]["packages"].append("zsh")
+            cloud_config["packages"].append("zsh")
 
     LOG.info(f"Writing cloud-init config to file: {output_path}")
     with open(f"{output_path}", "w") as f:

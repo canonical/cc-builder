@@ -30,7 +30,8 @@ def get_ssh_import_id_entries() -> list[SSHImportIDEntry]:
         for line in lines:
             if "ssh-import-id" in line:
                 key_server, username = line.strip().split(" ")[-1].split(":")
-                entries.append(SSHImportIDEntry(key_server, username))
+                if SSHImportIDEntry(key_server, username) not in entries:
+                    entries.append(SSHImportIDEntry(key_server, username))
         return entries
     except FileNotFoundError:
         LOG.warning("No authorized_keys file found")
@@ -122,6 +123,8 @@ class SSHConfig(BaseConfig):
     ssh_import_id: list[SSHImportIDEntry] = dataclasses.field(default_factory=list)
     # private_ssh_keys: list[SSHKeyFile] = dataclasses.field(default_factory=list)
     public_ssh_keys: list[SSHKeyFile] = dataclasses.field(default_factory=list)
+    gather_public_keys: bool = False
+
 
     def gather(self):
         LOG.info("Gathering SSHConfig")
@@ -132,12 +135,15 @@ class SSHConfig(BaseConfig):
         self.public_ssh_keys = get_public_ssh_keys()
 
     def generate_cloud_config(self):
-        return {
+        result = {
             "ssh_import_id": [f"{entry.key_server}:{entry.username}" for entry in self.ssh_import_id],
             "ssh": {
                 "ssh_authorized_keys": self.authorized_keys_lines,
+                "disable_root": str(self.disable_root),
             },
-            "write_files": [
+        }
+        if self.gather_public_keys:
+            result["write_files"] = [
                 {
                     "path": ssh_key.path,
                     "content": ssh_key.content,
@@ -145,6 +151,5 @@ class SSHConfig(BaseConfig):
                     "owner": "$USER",  # will be replaced with the current user's username later
                 }
                 for ssh_key in self.public_ssh_keys
-            ],
-            "disable_root": str(self.disable_root),
-        }
+            ]
+        return result

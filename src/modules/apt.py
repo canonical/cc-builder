@@ -154,6 +154,6 @@ class AptConfig(BaseConfig):
         return {
             "apt": {
                 "sources": {repo.name: {"source": repo.repo_line_without_options} for repo in known_sources},
-                "packages": [package.name for package in self.packages],
-            }
+            },
+            "packages": [package.name for package in self.packages],
         }

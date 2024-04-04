@@ -51,7 +51,21 @@ def cli(ctx, log_level):
 #     is_flag=True,
 #     help="Enable gathering of private key files. Only use this if you are going to keep the generated cloud-config private since the private key will be stored in plain text within the cloud-config.",
 # )
-def generate(ctx, output_path, force, gather_hostname):
+# enable gathering of all public key files in the ~/.ssh directory
+@click.option(
+    "--gather-public-keys",
+    is_flag=True,
+    help="Enable gathering of all public key files in the ~/.ssh directory. This will allow you to use the same public keys on the new machine as the current machine.",
+    default=False,
+)
+
+@click.option(
+    "--password",
+    help="Set the password for the user. This will be hashed and added to the cloud-init config.",
+    required=False,
+)
+
+def generate(ctx, output_path, force, gather_hostname, gather_public_keys, password):
     if os.path.exists(f"{output_path}.yaml") and not force:
         LOG.warning(
             f"Output file {output_path}.yaml already exists. Use --force or -f to allow writing over existing file"
@@ -61,8 +75,9 @@ def generate(ctx, output_path, force, gather_hostname):
     create_cloud_init_config(
         output_path,
         hostname_enabled=gather_hostname,
+        gather_public_keys=gather_public_keys,
+        password=password,
     )
-
 
 if __name__ == "__main__":
     cli(obj={})
