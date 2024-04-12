@@ -63,13 +63,6 @@ def cli(ctx, log_level):
     help="Set the password for the user. This will be hashed and added to the cloud-init config.",
     required=False,
 )
-# configs: list[BaseConfig] = [
-#         AptConfig(),
-#         SnapConfig(),
-#         SSHConfig(gather_public_keys=gather_public_keys),
-#         UserConfig(plaintext_password=password),
-#     ]
-
 # add disable flags for each config 
 @click.option(
     "--disable-apt",
