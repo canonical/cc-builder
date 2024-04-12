@@ -58,19 +58,59 @@ def cli(ctx, log_level):
     help="Enable gathering of all public key files in the ~/.ssh directory. This will allow you to use the same public keys on the new machine as the current machine.",
     default=False,
 )
-
 @click.option(
     "--password",
     help="Set the password for the user. This will be hashed and added to the cloud-init config.",
     required=False,
 )
+# configs: list[BaseConfig] = [
+#         AptConfig(),
+#         SnapConfig(),
+#         SSHConfig(gather_public_keys=gather_public_keys),
+#         UserConfig(plaintext_password=password),
+#     ]
 
-def generate(ctx, output_path, force, gather_hostname, gather_public_keys, password):
+# add disable flags for each config 
+@click.option(
+    "--disable-apt",
+    is_flag=True,
+    help="Disable the gathering and generation of apt config.",
+    default=False,
+)
+@click.option(
+    "--disable-snap",
+    is_flag=True,
+    help="Disable the gathering and generation of snap config.",
+    default=False,
+)
+@click.option(
+    "--disable-ssh",
+    is_flag=True,
+    help="Disable the gathering and generation of ssh config.",
+    default=False,
+)
+@click.option(
+    "--disable-user",
+    is_flag=True,
+    help="Disable the gathering and generation of user config.",
+    default=False,
+)
+def generate(ctx, output_path, force, gather_hostname, gather_public_keys, password, disable_apt, disable_snap, disable_ssh, disable_user):
     if os.path.exists(f"{output_path}.yaml") and not force:
         LOG.warning(
             f"Output file {output_path}.yaml already exists. Use --force or -f to allow writing over existing file"
         )
         return
+
+    disabled_configs = []
+    if disable_apt:
+        disabled_configs.append("apt")
+    if disable_snap:
+        disabled_configs.append("snap")
+    if disable_ssh:
+        disabled_configs.append("ssh")
+    if disable_user:
+        disabled_configs.append("user")
 
     create_cloud_init_config(
         output_path,

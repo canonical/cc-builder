@@ -26,6 +26,7 @@ def create_cloud_init_config(
     hostname_enabled: bool = False,
     gather_public_keys: bool = False,
     password: str = None,
+    disabled_configs: dict[str, bool] = [],
     **kwargs,
 ):
     # get current user
@@ -33,12 +34,26 @@ def create_cloud_init_config(
     current_user = result.stdout.strip()
 
     LOG.info("Initializing all not-cloud-init modules")
-    configs: list[BaseConfig] = [
-        AptConfig(),
-        SnapConfig(),
-        SSHConfig(gather_public_keys=gather_public_keys),
-        UserConfig(plaintext_password=password),
-    ]
+
+    configs: list[BaseConfig] = []
+
+    if "apt" not in disabled_configs:
+        configs.append(AptConfig())
+    else:
+        LOG.debug("Apt config disabled")
+    if "snap" not in disabled_configs:
+        configs.append(SnapConfig())
+    else:
+        LOG.debug("Snap config disabled")
+    if "ssh" not in disabled_configs:
+        configs.append(SSHConfig(gather_public_keys=gather_public_keys))
+    else:
+        LOG.debug("SSH config disabled")
+    if "user" not in disabled_configs:
+        configs.append(UserConfig(plaintext_password=password))
+    else:
+        LOG.debug("User config disabled")
+    
     # enable optional modules
     if hostname_enabled:
         configs.append(HostnameConfig())
@@ -53,9 +68,9 @@ def create_cloud_init_config(
         cc_dict = config.generate_cloud_config()
         # merge cc_dict into cloud_config_sections
         cloud_config.update(cc_dict)
-
-    if cloud_config["users"][0]["shell"] == "/usr/bin/zsh":
-        if "zsh" in cloud_config["packages"]:
+    
+    if cloud_config["users"] and cloud_config["users"][0]["shell"] == "/usr/bin/zsh":
+        if "zsh" in cloud_config.get("packages", []):
             LOG.debug("User has zsh as shell, but zsh already in list of packages.")
         else:
             LOG.debug("User has zsh as shell, so adding zsh to list of packages.")
