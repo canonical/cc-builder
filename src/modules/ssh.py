@@ -21,6 +21,10 @@ class SSHKeyFile:
     public: bool = True
 
 
+def trim_ssh_key(content):
+    return " ".join(content.split()[:2])
+
+
 def get_ssh_import_id_entries() -> list[SSHImportIDEntry]:
     try:
         # entries in ~/.ssh/authorized_keys will contain " # ssh-import-id lp:xxx" or " # ssh-import-id gh:xxx"
@@ -42,7 +46,9 @@ def get_authorized_keys_lines() -> list[str]:
     try:
         with open(os.path.expanduser("~/.ssh/authorized_keys"), "r") as authorized_keys_file:
             lines = [
-                l.strip() for l in authorized_keys_file.readlines() if l.strip() != "" and not l.strip().startswith("#")
+                trim_ssh_key(l.strip())
+                for l in authorized_keys_file.readlines()
+                if l.strip() != "" and not l.strip().startswith("#")
             ]
         return lines
     except FileNotFoundError:
@@ -134,11 +140,16 @@ def get_public_ssh_keys() -> list[str]:
         # make sure item is a file and not a directory
         if os.path.isfile(os.path.expanduser("~/.ssh/") + file):
             with open(os.path.expanduser("~/.ssh/") + file, "r") as f:
-                content = f.read().strip()
+                content = trim_ssh_key(f.read().strip())
             is_valid = any([content.startswith(key_type) for key_type in supported_public_key_types])
             if is_valid:
                 public_keys.append(SSHKeyFile(path=os.path.expanduser("~/.ssh/") + file, content=content))
     return public_keys
+
+
+def replace_user_path(content, user):
+    # get /home/*whatever*/ path and replace it with user
+    return f"/home/{user}/" + content.split("/home/", 1)[1].split("/", 1)[1]
 
 
 @dataclasses.dataclass
@@ -180,7 +191,7 @@ class SSHConfig(BaseConfig):
         if self.gather_public_keys:
             result["write_files"] = [
                 {
-                    "path": ssh_key.path,
+                    "path": replace_user_path(ssh_key.path, self.current_user),
                     "content": ssh_key.content,
                     "permissions": "0644" if ssh_key.public else "0600",
                     "owner": self.current_user,
