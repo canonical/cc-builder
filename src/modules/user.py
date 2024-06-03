@@ -21,7 +21,7 @@ def get_shell() -> str:
     return result.stdout.strip()
 
 
-def get_sudo() -> bool:
+def get_sudo(user: str) -> bool:
     result = subprocess.run("getent group sudo", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return get_current_user() in result.stdout.strip().split(":")[3].split(",")
 
@@ -33,15 +33,14 @@ def get_primary_group():
 
 @dataclasses.dataclass
 class UserConfig:
-    name: str = "ubuntu"
+    name: str
     sudo: bool = True
     shell: str = "/bin/bash"
     plaintext_password: str = None
 
     def gather(self):
         LOG.info("Gathering UserConfig")
-        self.name = get_current_user()
-        self.sudo = get_sudo()
+        self.sudo = get_sudo(user=self.name)
         self.shell = get_shell()
 
     def generate_cloud_config(self) -> dict:

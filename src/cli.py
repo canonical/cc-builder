@@ -87,6 +87,12 @@ def cli(ctx, log_level):
     help="Disable the gathering and generation of user config.",
     default=False,
 )
+@click.option(
+    "--rename-to-ubuntu-user",
+    is_flag=True,
+    help="Keep the current user but rename it to the default 'ubuntu' user.",
+    default=False,
+)
 def generate(
     ctx,
     output_path,
@@ -98,6 +104,7 @@ def generate(
     disable_snap,
     disable_ssh,
     disable_user,
+    rename_to_ubuntu_user,
 ):
     if os.path.exists(f"{output_path}") and not force:
         LOG.warning(f"Output file {output_path} already exists. Use --force or -f to allow writing over existing file")
@@ -119,6 +126,7 @@ def generate(
         gather_public_keys=gather_public_keys,
         password=password,
         disabled_configs=disabled_configs,
+        rename_to_ubuntu_user=True,
     )
 
 

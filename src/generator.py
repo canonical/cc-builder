@@ -27,11 +27,15 @@ def create_cloud_init_config(
     gather_public_keys: bool = False,
     password: str = None,
     disabled_configs: dict[str, bool] = [],
+    rename_to_ubuntu_user: bool = False,
     **kwargs,
 ):
     # get current user
-    result = subprocess.run("whoami", shell=True, stdout=subprocess.PIPE, text=True)
-    current_user = result.stdout.strip()
+    if rename_to_ubuntu_user:
+        current_user = "ubuntu"
+    else:
+        result = subprocess.run("whoami", shell=True, stdout=subprocess.PIPE, text=True)
+        current_user = result.stdout.strip()
 
     LOG.info("Initializing all not-cloud-init modules")
 
@@ -46,14 +50,14 @@ def create_cloud_init_config(
     else:
         LOG.debug("Snap config disabled")
     if "ssh" not in disabled_configs:
-        configs.append(SSHConfig(gather_public_keys=gather_public_keys))
+        configs.append(SSHConfig(current_user=current_user, gather_public_keys=gather_public_keys))
     else:
         LOG.debug("SSH config disabled")
     if "user" not in disabled_configs:
-        configs.append(UserConfig(plaintext_password=password))
+        configs.append(UserConfig(name=current_user, plaintext_password=password))
     else:
         LOG.debug("User config disabled")
-    
+
     # enable optional modules
     if hostname_enabled:
         configs.append(HostnameConfig())
