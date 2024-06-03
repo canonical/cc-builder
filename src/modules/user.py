@@ -3,9 +3,6 @@ import logging
 import os
 import subprocess
 
-import yaml
-from passlib.hash import sha512_crypt
-
 from custom_types import BaseConfig
 
 LOG = logging.getLogger(__name__)
@@ -32,7 +29,7 @@ def get_primary_group():
 
 
 @dataclasses.dataclass
-class UserConfig:
+class UserConfig(BaseConfig):
     name: str
     sudo: bool = True
     shell: str = "/bin/bash"
