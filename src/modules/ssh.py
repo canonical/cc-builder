@@ -50,14 +50,38 @@ def get_authorized_keys_lines() -> list[str]:
         return []
 
 
-def is_root_login_enabled() -> bool:
+# grep "^PasswordAuthentication*" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*
+def is_password_authentication_disabled() -> bool:
     try:
-        r = subprocess.run("cat /etc/ssh/sshd_config | grep '^PermitRootLogin yes'", shell=True, check=True, text=True, capture_output=True)
+        r = subprocess.run(
+            "grep '^PasswordAuthentication no' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*",
+            shell=True,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
+        LOG.debug(f"Password authentication status line found: {r.stdout.strip()}")
+        return "no" in r.stdout
+    except:
+        LOG.warning("Could not determine password authentication status")
+        return None
+
+
+def is_root_login_disabled() -> bool:
+    try:
+        r = subprocess.run(
+            "grep '^PermitRootLogin no' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*",
+            shell=True,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
         LOG.debug(f"Root login status line found: {r.stdout.strip()}")
-        return "yes" in r.stdout
+        return "no" in r.stdout
     except:
         LOG.warning("Could not determine root login status")
-        return False
+        return None
+
 
 def get_private_ssh_keys() -> list[str]:
     # check all files in ~/.ssh/ for private keys
@@ -105,6 +129,8 @@ def get_public_ssh_keys() -> list[str]:
 
     public_keys = []
     for file in os.listdir(os.path.expanduser("~/.ssh/")):
+        if file == "authorized_keys":
+            continue
         # make sure item is a file and not a directory
         if os.path.isfile(os.path.expanduser("~/.ssh/") + file):
             with open(os.path.expanduser("~/.ssh/") + file, "r") as f:
@@ -118,29 +144,38 @@ def get_public_ssh_keys() -> list[str]:
 @dataclasses.dataclass
 class SSHConfig(BaseConfig):
     # https://cloudinit.readthedocs.io/en/latest/reference/modules.html#ssh
+    current_user: str
     authorized_keys_lines: list[str] = dataclasses.field(default_factory=list)
     disable_root: bool = True
+    disable_password_authentication: bool = True
     ssh_import_id: list[SSHImportIDEntry] = dataclasses.field(default_factory=list)
     # private_ssh_keys: list[SSHKeyFile] = dataclasses.field(default_factory=list)
     public_ssh_keys: list[SSHKeyFile] = dataclasses.field(default_factory=list)
     gather_public_keys: bool = False
 
-
     def gather(self):
         LOG.info("Gathering SSHConfig")
-        self.disable_root = is_root_login_enabled()
+        self.disable_root = is_root_login_disabled()
+        self.disable_password_authentication = is_password_authentication_disabled()
         self.ssh_import_id = get_ssh_import_id_entries()
         self.authorized_keys_lines = get_authorized_keys_lines()
         # self.private_ssh_keys = get_private_ssh_keys()
         self.public_ssh_keys = get_public_ssh_keys()
 
     def generate_cloud_config(self):
+        optional_config = {}
+        if self.disable_root is not None:
+            optional_config["disable_root"] = self.disable_root
+        if self.disable_password_authentication is not None:
+            optional_config["ssh_pwauth"] = not self.disable_password_authentication
         result = {
-            "ssh_import_id": [f"{entry.key_server}:{entry.username}" for entry in self.ssh_import_id],
-            "ssh": {
-                "ssh_authorized_keys": self.authorized_keys_lines,
-                "disable_root": str(self.disable_root),
-            },
+            "users": [
+                {
+                    "name": self.current_user,
+                    "ssh_import_id": [f"{entry.key_server}:{entry.username}" for entry in self.ssh_import_id],
+                    "ssh_authorized_keys": self.authorized_keys_lines,
+                },
+            ],
         }
         if self.gather_public_keys:
             result["write_files"] = [
