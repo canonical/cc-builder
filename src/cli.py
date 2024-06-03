@@ -39,7 +39,6 @@ def cli(ctx, log_level):
 )
 @click.option(
     "--gather-hostname",
-    # prompt="Gather the hostname of the machine?",
     is_flag=True,
     default=False,
     help="Enable gathering the hostname of the machine. This is will cause issues unless this exact machine is being redeployed using the generated cloud-init config.",
@@ -60,10 +59,10 @@ def cli(ctx, log_level):
 )
 @click.option(
     "--password",
-    help="Set the password for the user. This will be hashed and added to the cloud-init config.",
+    help="Set the password for the user. WARNING: This is incredibly insecure and is stored in plaintext in the cloud-init config.",
     required=False,
 )
-# add disable flags for each config 
+# add disable flags for each config
 @click.option(
     "--disable-apt",
     is_flag=True,
@@ -88,11 +87,20 @@ def cli(ctx, log_level):
     help="Disable the gathering and generation of user config.",
     default=False,
 )
-def generate(ctx, output_path, force, gather_hostname, gather_public_keys, password, disable_apt, disable_snap, disable_ssh, disable_user):
-    if os.path.exists(f"{output_path}.yaml") and not force:
-        LOG.warning(
-            f"Output file {output_path}.yaml already exists. Use --force or -f to allow writing over existing file"
-        )
+def generate(
+    ctx,
+    output_path,
+    force,
+    gather_hostname,
+    gather_public_keys,
+    password,
+    disable_apt,
+    disable_snap,
+    disable_ssh,
+    disable_user,
+):
+    if os.path.exists(f"{output_path}") and not force:
+        LOG.warning(f"Output file {output_path} already exists. Use --force or -f to allow writing over existing file")
         return
 
     disabled_configs = []
@@ -110,7 +118,9 @@ def generate(ctx, output_path, force, gather_hostname, gather_public_keys, passw
         hostname_enabled=gather_hostname,
         gather_public_keys=gather_public_keys,
         password=password,
+        disabled_configs=disabled_configs,
     )
+
 
 if __name__ == "__main__":
     cli(obj={})
