@@ -183,7 +183,7 @@ class SSHConfig(BaseConfig):
                     "path": ssh_key.path,
                     "content": ssh_key.content,
                     "permissions": "0644" if ssh_key.public else "0600",
-                    "owner": "$USER",  # will be replaced with the current user's username later
+                    "owner": self.current_user,
                 }
                 for ssh_key in self.public_ssh_keys
             ]
