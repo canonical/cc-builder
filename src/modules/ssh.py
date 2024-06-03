@@ -146,6 +146,9 @@ def get_public_ssh_keys() -> list[str]:
                 public_keys.append(SSHKeyFile(path=os.path.expanduser("~/.ssh/") + file, content=content))
     return public_keys
 
+def replace_user_path(content, user):
+    # get /home/*whatever*/ path and replace it with user
+    return f"/home/{user}/" + content.split("/home/",1)[1].split("/",1)[1]
 
 def replace_user_path(content, user):
     # get /home/*whatever*/ path and replace it with user
