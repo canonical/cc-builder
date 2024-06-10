@@ -77,7 +77,7 @@ def create_cloud_init_config(
         # merge cc_dict into cloud_config
         cloud_config.update(cc_dict)
 
-    if cloud_config["users"] and cloud_config["users"][0]["shell"] == "/usr/bin/zsh":
+    if "user" not in disabled_configs and cloud_config["users"] and cloud_config["users"][0]["shell"] == "/usr/bin/zsh":
         if "zsh" in cloud_config.get("packages", []):
             LOG.debug("User has zsh as shell, but zsh already in list of packages.")
         else:
