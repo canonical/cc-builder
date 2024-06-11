@@ -29,7 +29,7 @@ class Snap:
 def get_installed_snaps():
     LOG.info("Gathering installed snaps")
     # Run snap list command to get a list of installed snaps
-    result = subprocess.run("snap list", shell=True, stdout=subprocess.PIPE, text=True)
+    result = subprocess.run("snap list", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     # Parse the output to extract snap names
     installed_snaps = []
     blacklisted_snaps = []

@@ -8,11 +8,6 @@ from custom_types import BaseConfig
 LOG = logging.getLogger(__name__)
 
 
-def get_current_user() -> str:
-    result = subprocess.run("whoami", shell=True, stdout=subprocess.PIPE, text=True)
-    return result.stdout.strip()
-
-
 def get_shell() -> str:
     result = subprocess.run("echo $SHELL", shell=True, stdout=subprocess.PIPE, text=True)
     return result.stdout.strip()
@@ -20,12 +15,7 @@ def get_shell() -> str:
 
 def get_sudo(user: str) -> bool:
     result = subprocess.run("getent group sudo", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    return get_current_user() in result.stdout.strip().split(":")[3].split(",")
-
-
-def get_primary_group():
-    result = subprocess.run("id -gn", shell=True, stdout=subprocess.PIPE, text=True)
-    return result.stdout.strip()
+    return user in result.stdout.strip().split(":")[3].split(",")
 
 
 @dataclasses.dataclass
