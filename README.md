@@ -4,23 +4,24 @@ A tool for gathering information about a currently running machine and generatin
 Since this tool only generates a cloud-config file for cloud-init to use, this tool is inherently limited by cloud-init capabilities.
 
 A tool for gathering information about a currently running machine and generating a basic cloud-config that can be used as a good starting point for re-creating the original machine via cloud-init.
-## Current State: _work in progress_ (Alpha 1.0)
+## Current State: Beta (v0.9.0)
+The tool is currently in a beta state and has all the main features implemented.  
 
-I am looking to test out the reliability and robustness of the tool in its current state.
+A CLI has now been implemented to allow for customizing the functionality of this tool.  
 
-Only 2447 more stars until we surpass canonical/cloud-init 😈😈😈
+Further testing across a variety of systems is needed to ensure the tool is working as expected.
 
 ## Capabilities:
 
 - [x] Apt sources (.list files) from sources.list.d/ 
   - [x] Gather from system
   - [x] Export into cloud config
-- [ ] Apt sources from sources.list
+- [X] Apt sources from sources.list
   - [x] Gather from system
+  - [X] Export into cloud config
+- [ ] Deb822 Apt Sources (.sources files) from sources.list.d/
+  - [ ] Gather from system
   - [ ] Export into cloud config
-- [x] Deb822 Apt Sources (.sources files) from sources.list.d/
-  - [x] Gather from system
-  - [x] Export into cloud config
 - [x] Snaps installed on system
   - [x] Gather from system
   - [x] Export into cloud config
@@ -30,30 +31,215 @@ Only 2447 more stars until we surpass canonical/cloud-init 😈😈😈
 - [x] Detailed operating system info 
   - [x] Gather from system
   - [x] Export into cloud config (in "commented out" metadata footer of cloud config)
-
-
+- [x] Rename current user to default "ubuntu" user to standardize for VM or Cloud use
+- [X] SSHD Config info (root login, password auth, etc)
+  - [x] Gather from system
+  - [X] Export into cloud config
+- [X] SSH Keys for current user (public keys, authorized_keys)
+  - [X] Gather from system
+  - [X] Export into cloud config 
 
 ## What does it do?
 
-This tool gathers information from your system then generates two cloud config files: 
-- one with apt packages from aptmark showmanual
-- one with apt packages from custom apt history parsing
+This cli tool gathers information from your system then generates a cloud-config file that can be used with cloud-init to
+create a simple image that is similar to the original system.
+
+## Installation
+
+### Via Easy Install Script
+```bash 
+curl -s https://raw.githubusercontent.com/a-dubs/not-cloud-init/main/install.sh | bash
+```
+
+#### Contents of the install.sh script:
+```bash
+#!/bin/bash
+
+# Clone the repository using HTTPS
+echo "Cloning the repository..."
+git clone https://github.com/a-dubs/not-cloud-init.git
+cd not-cloud-init
+
+# Install python3-venv if not already installed
+echo "Installing python3-venv if not already installed..."
+sudo apt-get install -y python3-venv
+
+# Create and activate a virtual environment
+echo "Creating and activating virtual environment..."
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+echo "Installing dependencies..."
+pip install -r requirements.txt
+
+# Check if the CLI is working
+echo "Checking if CLI is working..."
+python src/cli.py --help
+
+echo "Installation complete."
+```
+
+### Manual Installation
+
+1. Clone this repo  
+
+  * Using SSH  
+
+      ```bash
+      git clone git@github.com:a-dubs/not-cloud-init.git
+      ```
+  * Using HTTPS
+
+      ```bash
+      git clone https://github.com/a-dubs/not-cloud-init.git
+      ```
+2. Create and activate a virtual environment (optional but recommended)
+   * Install `pyvenv` (if not already installed)
+   ```bash
+   sudo apt-get install python3-venv
+   ```
+   * Create a virtual environment
+   ```bash
+   python3 -m venv venv
+   ```
+   * Activate the virtual environment
+   ```bash
+   source venv/bin/activate
+   ```
+3. Install the dependencies
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Check if the CLI is working
+   ```bash
+   python src/cli.py --help
+   ```
+
+
+
+## How to use
+
+### Base Level CLI
+The CLI entrypoint is `cli.py` in the `src` directory.
+
+```bash
+Usage: python src/cli.py [OPTIONS] COMMAND [ARGS]...
+
+  CLI tool for system package management.
+
+Options:
+  --log-level TEXT  Set the logging level (DEBUG, INFO, WARNING, ERROR,
+                    CRITICAL).
+  --help            Show this message and exit.
+
+Commands:
+  generate
+```
+
+### Generating a cloud-config file
+
+To generate a cloud-config file, use the `generate` command.
+
+The `generate` command has the following CLI usage:
+
+```bash
+Usage: python src/cli.py generate [OPTIONS]
+
+Options:
+  -o, --output-path TEXT   Path to output file.
+  -f, --force              Write over output file if it already exists.
+  --gather-hostname        Enable gathering the hostname of the machine. This
+                           is will cause issues unless this exact machine is
+                           being redeployed using the generated cloud-init
+                           config.
+  --gather-public-keys     Enable gathering of all public key files in the
+                           ~/.ssh directory. This will allow you to use the
+                           same public keys on the new machine as the current
+                           machine.
+  --password TEXT          Set the password for the user. WARNING: This is
+                           incredibly insecure and is stored in plaintext in
+                           the cloud-init config.
+  --disable-apt            Disable the gathering and generation of apt config.
+  --disable-snap           Disable the gathering and generation of snap
+                           config.
+  --disable-ssh            Disable the gathering and generation of ssh config.
+  --disable-user           Disable the gathering and generation of user
+                           config.
+  --rename-to-ubuntu-user  Keep the current user but rename it to the default
+                           'ubuntu' user.
+  --help                   Show this message and exit.
+```
+
+### Example Calls:
+
+#### Minimum Call
+```bash
+python src/cli.py generate
+```
+This will output a cloud-config file named cloud-config.yaml with the default settings.
+
+#### Custom Output Path Example 
+```bash
+python src/cli.py generate -o cc.yaml
+```
+This will output a cloud-config file named cc.yaml with the default settings.  
+If cc.yaml already exists, the tool will not overwrite it because the `-f` flag is not passed.
+
+#### Overwrite Custom Output Path Example
+```bash
+python src/cli.py generate -o cc.yaml -f
+```
+This will output a cloud-config file named cc.yaml with the default settings.  
+But now, the tool will overwrite cc.yaml if it already exists.
+
+#### Disable Apt Example
+```bash
+python src/cli.py --log-level DEBUG generate -f --disable-apt
+```
+This will gather all other configs except for the apt sources and packages installed on the system.
+And will overwrite the output file if it already exists.  
+Also, the log level is set to DEBUG to show more information about the process.
+
+#### Rename User Example
+```bash
+python src/cli.py --log-level DEBUG generate -o cc.yaml --rename-to-ubuntu-user
+```
+This will gather the config for the user the tool is run as, but rename the user to "ubuntu" in the cloud-config file
+so that when the cloud-config is used to create a new machine, the user will be named "ubuntu" instead of the original.
+Also, the log level is set to DEBUG to show more information about the process.
+
+#### Complex Example
+```bash
+python src/cli.py --log-level DEBUG generate  --password letmein --disable-apt --disable-snap -f --gather-hostname --gather-public-keys
+```
+This will generate a cloud-config file with the password "letmein" for the user, disable the gathering of apt and snap
+configs, force overwrite the output file if it already exists, capture the hostname of the machine, gather the public
+keys for recreation on the new machine, and sets the log level to DEBUG. 
+
 
 ## Gathering feedback
 
 If you have a few minutes to kill, please consider running this tool locally on your system or machine(s) of your
-choosing. 
+choosing.   
+Currently this project should be in a decently stable state, so I'm looking for feedback on any bugs or unexpected
+behavior involving the newly created CLI.
 
-1. Download the not-cloud-init.py script using wget or curl:  
-`wget https://raw.githubusercontent.com/a-dubs/not-cloud-init/main/not-cloud-init.py`  
-or  
-`curl https://raw.githubusercontent.com/a-dubs/not-cloud-init/main/not-cloud-init.py -o not-cloud-init.py`
+1. Clone this repo on machine of your choosing (either a physical machine, VM, or cloud instance)
 
 2. Run the not-cloud-init python script:  
-`python3 not-cloud-init.py`
+   * Follow the instructions above for suggested usage and mess around with the CLI options to see what the tool can do.  
+   * At the very least, invoke the tool trying out both DEBUG and INFO log levels so that you can provide feedback on the log output as well:
 
-3. Look over the content of the generated cloud-config files and then fill out this google form with your feedback
-and optionally include the generated cloud-config files in the form as well if you are comfortable with doing so.
+      ```bash
+      python src/cli.py --log-level DEBUG generate -f
+      ```
+      ```bash
+      python src/cli.py --log-level INFO generate -f
+      ```
+
+3. Look over the content of the generated cloud-config file and then fill out this google form with your feedback
+and optionally include the generated cloud-config file in the form as well if you are comfortable with doing so.
 https://forms.gle/XjBJbqFtaG1svf1S8  
 
 If you end up testing on multiple machines, you can just fill out the form multiple times and just skip to the second

@@ -46,6 +46,7 @@ def get_sources_list_lines() -> list[str]:
         for line in sources_list_file:
             if line.startswith("deb"):
                 sources_list.append(line.strip())
+    LOG.debug(f"Found {len(sources_list)} lines in sources.list")
     return sources_list
 
 
@@ -141,19 +142,22 @@ def get_apt_packages():
 
 @dataclasses.dataclass
 class AptConfig(BaseConfig):
-    repos: list[AptRepository] = dataclasses.field(default_factory=list)
     packages: list[AptPackage] = dataclasses.field(default_factory=list)
+    sources: list[str] = dataclasses.field(default_factory=list)
+    sources_list: list[str] = dataclasses.field(default_factory=list)
 
     def gather(self):
         LOG.debug("Gathering AptConfig")
-        self.repos = get_apt_repositories()
+        self.sources = get_apt_repositories()
+        self.sources_list = get_sources_list_lines()
         self.packages = get_apt_packages()
 
     def generate_cloud_config(self) -> dict:
-        known_sources = [repo for repo in self.repos if repo.name != "UNKNOWN"]
+        known_sources = [repo for repo in self.sources if repo.name != "UNKNOWN"]
         return {
             "apt": {
                 "sources": {repo.name: {"source": repo.repo_line_without_options} for repo in known_sources},
+                "sources_list": "\n".join(self.sources_list),
             },
             "packages": [package.name for package in self.packages],
         }
