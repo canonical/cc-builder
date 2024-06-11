@@ -48,7 +48,7 @@ create a simple image that is similar to the original system.
 
 ### Via Easy Install Script
 ```bash 
-curl -s https://raw.githubusercontent.com/a-dubs/not-cloud-init/main/install.sh | bash
+curl -s https://raw.githubusercontent.com/a-dubs/not-cloud-init/main/install.sh -o install.sh && source install.sh
 ```
 
 #### Contents of the install.sh script:
