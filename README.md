@@ -12,38 +12,17 @@ A CLI has now been implemented to allow for customizing the functionality of thi
 
 Further testing across a variety of systems is needed to ensure the tool is working as expected.
 
-## Capabilities:
+## Features (What can it do?)
 
-- [x] Apt sources (.list files) from sources.list.d/ 
-  - [x] Gather from system
-  - [x] Export into cloud config
-- [X] Apt sources from sources.list
-  - [x] Gather from system
-  - [X] Export into cloud config
-- [ ] Deb822 Apt Sources (.sources files) from sources.list.d/
-  - [ ] Gather from system
-  - [ ] Export into cloud config
-- [x] Snaps installed on system
-  - [x] Gather from system
-  - [x] Export into cloud config
-- [x] "Manually" installed apt packages (using aptmark showmanual)
-  - [x] Gather from system
-  - [x] Export into cloud config
-- [x] Detailed operating system info 
-  - [x] Gather from system
-  - [x] Export into cloud config (in "commented out" metadata footer of cloud config)
-- [x] Rename current user to default "ubuntu" user to standardize for VM or Cloud use
-- [X] SSHD Config info (root login, password auth, etc)
-  - [x] Gather from system
-  - [X] Export into cloud config
-- [X] SSH Keys for current user (public keys, authorized_keys)
-  - [X] Gather from system
-  - [X] Export into cloud config 
+This CLI tool gathers information from your system and generates a cloud-config file that can be used with cloud-init to create a simple image similar to the original system.
 
-## What does it do?
-
-This cli tool gathers information from your system then generates a cloud-config file that can be used with cloud-init to
-create a simple image that is similar to the original system.
+- Gather and export Apt sources from sources.list and sources.list.d/
+- Gather and export Snaps installed on the system
+- Gather and export manually installed Apt packages
+- Gather and export detailed operating system info
+- Rename the current user to the default "ubuntu" user for VM or Cloud use
+- Gather and export SSHD config info (root login, password auth, etc.)
+- Gather and export SSH keys for the current user (public keys, authorized_keys)
 
 ## Installation
 
