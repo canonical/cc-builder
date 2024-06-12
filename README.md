@@ -23,6 +23,7 @@ This CLI tool gathers information from your system and generates a cloud-config 
 - Rename the current user to the default "ubuntu" user for VM or Cloud use
 - Gather and export SSHD config info (root login, password auth, etc.)
 - Gather and export SSH keys for the current user (public keys, authorized_keys)
+- Gather and export User info such as what shell they use and if they have sudo rights or not
 
 ## Installation
 
