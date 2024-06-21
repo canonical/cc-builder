@@ -221,7 +221,7 @@ behavior involving the newly created CLI.
 
 3. Look over the content of the generated cloud-config file and then fill out this google form with your feedback
 and optionally include the generated cloud-config file in the form as well if you are comfortable with doing so.
-https://forms.gle/XjBJbqFtaG1svf1S8  
+https://forms.gle/aE8476VK9miAbZLc8  
 
 If you end up testing on multiple machines, you can just fill out the form multiple times and just skip to the second
 page of the form to submit the cloud-config files. 
