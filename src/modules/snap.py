@@ -3,6 +3,7 @@ import logging
 import re
 import subprocess
 
+from typing import Optional, Dict, List
 import yaml
 
 from custom_types import BaseConfig
@@ -27,7 +28,7 @@ class Snap:
 
 
 def get_installed_snaps():
-    LOG.info("Gathering installed snaps")
+    LOG.debug("Gathering installed snaps")
     # Run snap list command to get a list of installed snaps
     result = subprocess.run("snap list", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     # Parse the output to extract snap names
@@ -60,13 +61,13 @@ def get_installed_snaps():
 # Snap Config class
 @dataclasses.dataclass
 class SnapConfig(BaseConfig):
-    snaps: list[Snap] = dataclasses.field(default_factory=list)
+    snaps: List[Snap] = dataclasses.field(default_factory=List)
 
     def gather(self):
         LOG.debug("Gathering SnapConfig")
         self.snaps = get_installed_snaps()
 
-    def generate_cloud_config(self) -> dict:
+    def generate_cloud_config(self) -> Dict:
         return {
             "snap": {
                 "commands": [

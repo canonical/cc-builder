@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 @click.group()
 @click.option(
     "--log-level",
-    default="WARNING",
+    default="INFO",
     help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
 )
 @click.pass_context
@@ -106,6 +106,9 @@ def generate(
     disable_user,
     rename_to_ubuntu_user,
 ):
+    """
+    Generate a cloud-init configuration file for the current machine.
+    """
     if os.path.exists(f"{output_path}") and not force:
         LOG.warning(f"Output file {output_path} already exists. Use --force or -f to allow writing over existing file")
         return
@@ -126,7 +129,7 @@ def generate(
         gather_public_keys=gather_public_keys,
         password=password,
         disabled_configs=disabled_configs,
-        rename_to_ubuntu_user=True,
+        rename_to_ubuntu_user=rename_to_ubuntu_user,
     )
 
 

@@ -5,7 +5,7 @@
 A tool for gathering information about a currently running machine and generating a basic cloud-config that can be used as a good starting point for re-creating the original machine via cloud-init.  
 Since this tool only generates a cloud-config file for cloud-init to use, this tool is inherently limited by cloud-init capabilities.
 
-## Current State: Beta (v0.9.1)
+## Current State: Beta (v0.9.2)
 The tool is currently in a beta state and has all the main features implemented.  
 
 A CLI has now been implemented to allow for customizing the functionality of this tool.  
@@ -123,6 +123,8 @@ The `generate` command has the following CLI usage:
 
 ```bash
 Usage: python src/cli.py generate [OPTIONS]
+
+  Generate a cloud-init configuration file for the current machine.
 
 Options:
   -o, --output-path TEXT   Path to output file.

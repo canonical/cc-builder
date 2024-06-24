@@ -26,11 +26,11 @@ class UserConfig(BaseConfig):
     plaintext_password: str = None
 
     def gather(self):
-        LOG.info("Gathering UserConfig")
+        LOG.debug("Gathering UserConfig")
         self.sudo = get_sudo(user=self.name)
         self.shell = get_shell()
 
-    def generate_cloud_config(self) -> dict:
+    def generate_cloud_config(self) -> Dict:
         users_optional_config = {}
         if self.plaintext_password:
             users_optional_config = {

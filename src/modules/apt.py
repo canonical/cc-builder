@@ -3,7 +3,7 @@ import logging
 import os
 import re
 import subprocess
-from typing import Optional
+from typing import Optional, Dict, List
 
 import yaml
 
@@ -18,10 +18,10 @@ class AptRepository:
     repo_line_without_options: str
     name: str
     archive_type: str
-    options: Optional[dict[str, list[str]]]
+    options: Optional[Dict[str, List[str]]]
     uri: str
     suite: str
-    components: Optional[list[str]]
+    components: Optional[List[str]]
 
 
 @dataclasses.dataclass
@@ -38,7 +38,7 @@ def deb822_to_one_line(deb822_repo):
     return repo_line
 
 
-def get_sources_list_lines() -> list[str]:
+def get_sources_list_lines() -> List[str]:
     sources_list = []
     sources_list_path = "/etc/apt/sources.list"
     # Read main sources.list
@@ -82,7 +82,7 @@ def parse_repository_line(line: str, file_path=None) -> AptRepository:
     return AptRepository(**repo_info)
 
 
-def get_apt_repositories() -> list[str]:
+def get_apt_repositories() -> List[str]:
     LOG.debug("Gathering apt repositories")
     sources_list_d_path = "/etc/apt/sources.list.d/"
     deb822_sources_repos = []
@@ -142,9 +142,9 @@ def get_apt_packages():
 
 @dataclasses.dataclass
 class AptConfig(BaseConfig):
-    packages: list[AptPackage] = dataclasses.field(default_factory=list)
-    sources: list[str] = dataclasses.field(default_factory=list)
-    sources_list: list[str] = dataclasses.field(default_factory=list)
+    packages: List[AptPackage] = dataclasses.field(default_factory=List)
+    sources: List[str] = dataclasses.field(default_factory=List)
+    sources_list: List[str] = dataclasses.field(default_factory=List)
 
     def gather(self):
         LOG.debug("Gathering AptConfig")
@@ -152,7 +152,7 @@ class AptConfig(BaseConfig):
         self.sources_list = get_sources_list_lines()
         self.packages = get_apt_packages()
 
-    def generate_cloud_config(self) -> dict:
+    def generate_cloud_config(self) -> Dict:
         known_sources = [repo for repo in self.sources if repo.name != "UNKNOWN"]
         return {
             "apt": {
