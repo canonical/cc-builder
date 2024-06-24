@@ -27,42 +27,6 @@ This CLI tool gathers information from your system and generates a cloud-config 
 
 ## Installation
 
-### Via Easy Install Script
-```bash 
-curl -s https://raw.githubusercontent.com/a-dubs/not-cloud-init/main/install.sh -o install.sh && source install.sh
-```
-
-#### Contents of the install.sh script:
-```bash
-#!/bin/bash
-
-# Clone the repository using HTTPS
-echo "Cloning the repository..."
-git clone https://github.com/a-dubs/not-cloud-init.git
-cd not-cloud-init
-
-# Install python3-venv if not already installed
-echo "Installing python3-venv if not already installed..."
-sudo apt-get install -y python3-venv
-
-# Create and activate a virtual environment
-echo "Creating and activating virtual environment..."
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-echo "Installing dependencies..."
-pip install -r requirements.txt
-
-# Check if the CLI is working
-echo "Checking if CLI is working..."
-python src/cli.py --help
-
-echo "Installation complete."
-```
-
-### Manual Installation
-
 1. Clone this repo  
 
   * Using SSH  
@@ -97,7 +61,40 @@ echo "Installation complete."
    python src/cli.py --help
    ```
 
+### Auto install (Recommended for fresh containers/VMs only):
 
+```bash 
+curl -s https://raw.githubusercontent.com/a-dubs/not-cloud-init/main/install.sh -o install.sh && source install.sh
+```
+
+#### Contents of the install.sh script:
+```bash
+#!/bin/bash
+
+# Clone the repository using HTTPS
+echo "Cloning the repository..."
+git clone https://github.com/a-dubs/not-cloud-init.git
+cd not-cloud-init
+
+# Install python3-venv if not already installed
+echo "Installing python3-venv if not already installed..."
+sudo apt-get install -y python3-venv
+
+# Create and activate a virtual environment
+echo "Creating and activating virtual environment..."
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+echo "Installing dependencies..."
+pip install -r requirements.txt
+
+# Check if the CLI is working
+echo "Checking if CLI is working..."
+python src/cli.py --help
+
+echo "Installation complete."
+```
 
 ## How to use
 
