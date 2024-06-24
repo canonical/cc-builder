@@ -160,12 +160,12 @@ def replace_user_path(content, user):
 class SSHConfig(BaseConfig):
     # https://cloudinit.readthedocs.io/en/latest/reference/modules.html#ssh
     current_user: str
-    authorized_keys_lines: List[str] = dataclasses.field(default_factory=List)
+    authorized_keys_lines: List[str] = dataclasses.field(default_factory=list)
     disable_root: bool = True
     disable_password_authentication: bool = True
-    ssh_import_id: List[SSHImportIDEntry] = dataclasses.field(default_factory=List)
-    # private_ssh_keys: List[SSHKeyFile] = dataclasses.field(default_factory=List)
-    public_ssh_keys: List[SSHKeyFile] = dataclasses.field(default_factory=List)
+    ssh_import_id: List[SSHImportIDEntry] = dataclasses.field(default_factory=list)
+    # private_ssh_keys: List[SSHKeyFile] = dataclasses.field(default_factory=list)
+    public_ssh_keys: List[SSHKeyFile] = dataclasses.field(default_factory=list)
     gather_public_keys: bool = False
 
     def gather(self):

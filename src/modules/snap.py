@@ -61,7 +61,7 @@ def get_installed_snaps():
 # Snap Config class
 @dataclasses.dataclass
 class SnapConfig(BaseConfig):
-    snaps: List[Snap] = dataclasses.field(default_factory=List)
+    snaps: List[Snap] = dataclasses.field(default_factory=list)
 
     def gather(self):
         LOG.debug("Gathering SnapConfig")

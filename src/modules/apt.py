@@ -142,9 +142,9 @@ def get_apt_packages():
 
 @dataclasses.dataclass
 class AptConfig(BaseConfig):
-    packages: List[AptPackage] = dataclasses.field(default_factory=List)
-    sources: List[str] = dataclasses.field(default_factory=List)
-    sources_list: List[str] = dataclasses.field(default_factory=List)
+    packages: List[AptPackage] = dataclasses.field(default_factory=list)
+    sources: List[str] = dataclasses.field(default_factory=list)
+    sources_list: List[str] = dataclasses.field(default_factory=list)
 
     def gather(self):
         LOG.debug("Gathering AptConfig")
