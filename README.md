@@ -206,9 +206,9 @@ choosing.
 Currently this project should be in a decently stable state, so I'm looking for feedback on any bugs or unexpected
 behavior involving the newly created CLI.
 
-1. Clone this repo on machine of your choosing (either a physical machine, VM, or cloud instance)
+1. Follow the instructions above in the **Installation** section to install not-cloud-init on your machine(s) of choosing.
 
-2. Run the not-cloud-init python script:  
+2. Run the not-cloud-init CLI:  
    * Follow the instructions above for suggested usage and mess around with the CLI options to see what the tool can do.  
    * At the very least, invoke the tool trying out both DEBUG and INFO log levels so that you can provide feedback on the log output as well:
 
