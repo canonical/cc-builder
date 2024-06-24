@@ -1,9 +1,8 @@
 import logging
 import subprocess
 import time
-from pprint import pprint
-
 import yaml
+from typing import Optional, Dict, List
 
 from custom_types import BaseConfig
 from modules.apt import AptConfig
@@ -26,7 +25,7 @@ def create_cloud_init_config(
     hostname_enabled: bool = False,
     gather_public_keys: bool = False,
     password: str = None,
-    disabled_configs: dict[str, bool] = [],
+    disabled_configs: Dict[str, bool] = [],
     rename_to_ubuntu_user: bool = False,
     **kwargs,
 ):
@@ -39,7 +38,7 @@ def create_cloud_init_config(
 
     LOG.info("Initializing all not-cloud-init modules")
 
-    configs: list[BaseConfig] = []
+    configs: List[BaseConfig] = []
 
     if "apt" not in disabled_configs:
         configs.append(AptConfig())
@@ -62,7 +61,7 @@ def create_cloud_init_config(
     if hostname_enabled:
         configs.append(HostnameConfig())
 
-    cloud_config: dict = {}
+    cloud_config: Dict = {}
 
     LOG.info("Gathering data for each not-cloud-init module")
     for config in configs:

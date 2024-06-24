@@ -6,6 +6,7 @@ import subprocess
 from custom_types import BaseConfig
 
 LOG = logging.getLogger(__name__)
+from typing import Optional, Dict, List
 
 
 @dataclasses.dataclass
@@ -25,7 +26,7 @@ def trim_ssh_key(content):
     return " ".join(content.split()[:2])
 
 
-def get_ssh_import_id_entries() -> list[SSHImportIDEntry]:
+def get_ssh_import_id_entries() -> List[SSHImportIDEntry]:
     try:
         # entries in ~/.ssh/authorized_keys will contain " # ssh-import-id lp:xxx" or " # ssh-import-id gh:xxx"
         with open(os.path.expanduser("~/.ssh/authorized_keys"), "r") as authorized_keys_file:
@@ -42,7 +43,7 @@ def get_ssh_import_id_entries() -> list[SSHImportIDEntry]:
         return []
 
 
-def get_authorized_keys_lines() -> list[str]:
+def get_authorized_keys_lines() -> List[str]:
     try:
         with open(os.path.expanduser("~/.ssh/authorized_keys"), "r") as authorized_keys_file:
             lines = [
@@ -89,7 +90,7 @@ def is_root_login_disabled() -> bool:
         return None
 
 
-def get_private_ssh_keys() -> list[str]:
+def get_private_ssh_keys() -> List[str]:
     # check all files in ~/.ssh/ for private keys
     # get all files in ~/.ssh/
     # then check if they are private keys by checking the first line
@@ -105,7 +106,7 @@ def get_private_ssh_keys() -> list[str]:
     return private_keys
 
 
-def get_public_ssh_keys() -> list[str]:
+def get_public_ssh_keys() -> List[str]:
     # check all files in ~/.ssh/ for public keys
     # get all files in ~/.ssh/
     # then check if they are public keys by checking the first line
@@ -159,12 +160,12 @@ def replace_user_path(content, user):
 class SSHConfig(BaseConfig):
     # https://cloudinit.readthedocs.io/en/latest/reference/modules.html#ssh
     current_user: str
-    authorized_keys_lines: list[str] = dataclasses.field(default_factory=list)
+    authorized_keys_lines: List[str] = dataclasses.field(default_factory=List)
     disable_root: bool = True
     disable_password_authentication: bool = True
-    ssh_import_id: list[SSHImportIDEntry] = dataclasses.field(default_factory=list)
-    # private_ssh_keys: list[SSHKeyFile] = dataclasses.field(default_factory=list)
-    public_ssh_keys: list[SSHKeyFile] = dataclasses.field(default_factory=list)
+    ssh_import_id: List[SSHImportIDEntry] = dataclasses.field(default_factory=List)
+    # private_ssh_keys: List[SSHKeyFile] = dataclasses.field(default_factory=List)
+    public_ssh_keys: List[SSHKeyFile] = dataclasses.field(default_factory=List)
     gather_public_keys: bool = False
 
     def gather(self):
