@@ -16,7 +16,7 @@ class HostnameConfig(BaseConfig):
     hostname: str = None
 
     def gather(self):
-        LOG.info("Gathering HostnameConfig")
+        LOG.debug("Gathering HostnameConfig")
         self.hostname = get_hostname()
 
     def generate_cloud_config(self):

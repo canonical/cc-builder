@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 @click.group()
 @click.option(
     "--log-level",
-    default="WARNING",
+    default="INFO",
     help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
 )
 @click.pass_context

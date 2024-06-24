@@ -83,8 +83,7 @@ def create_cloud_init_config(
         else:
             LOG.debug("User has zsh as shell, so adding zsh to list of packages.")
             cloud_config["packages"].append("zsh")
-
-    LOG.info(f"Writing cloud-init config to file: {output_path}")
+    LOG.info("Done gathering data for all not-cloud-init modules")
     with open(f"{output_path}", "w") as f:
         f.write("#cloud-config\n")
 
@@ -102,3 +101,5 @@ def create_cloud_init_config(
         f.write(f"# File created at: {time.ctime()}\n")
         f.write("# Cloud config created by not-cloud-init tool written by @a-dubs.\n")
         f.write("#" * 80 + "\n")
+
+    LOG.info(f"Wrote cloud-init config to file: {output_path}")

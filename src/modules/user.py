@@ -26,7 +26,7 @@ class UserConfig(BaseConfig):
     plaintext_password: str = None
 
     def gather(self):
-        LOG.info("Gathering UserConfig")
+        LOG.debug("Gathering UserConfig")
         self.sudo = get_sudo(user=self.name)
         self.shell = get_shell()
 
