@@ -27,6 +27,8 @@ This CLI tool gathers information from your system and generates a cloud-config 
 
 ## Installation
 
+### Manual Installation
+
 1. Clone this repo  
 
   * Using SSH  
