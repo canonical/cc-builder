@@ -5,6 +5,12 @@ echo "Cloning the repository..."
 git clone https://github.com/a-dubs/not-cloud-init.git
 cd not-cloud-init
 
+# update apt
+sudo apt update -y
+
+# install pip
+sudo apt install python3-pip -y
+
 # Install python3-venv if not already installed
 echo "Installing python3-venv if not already installed..."
 sudo apt-get install -y python3-venv
