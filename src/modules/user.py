@@ -2,6 +2,7 @@ import dataclasses
 import logging
 import os
 import subprocess
+from typing import Dict
 
 from custom_types import BaseConfig
 
