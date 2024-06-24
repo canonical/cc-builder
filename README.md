@@ -127,6 +127,8 @@ The `generate` command has the following CLI usage:
 ```bash
 Usage: python src/cli.py generate [OPTIONS]
 
+  Generate a cloud-init configuration file for the current machine.
+
 Options:
   -o, --output-path TEXT   Path to output file.
   -f, --force              Write over output file if it already exists.

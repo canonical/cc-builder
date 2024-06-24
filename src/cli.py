@@ -106,6 +106,9 @@ def generate(
     disable_user,
     rename_to_ubuntu_user,
 ):
+    """
+    Generate a cloud-init configuration file for the current machine.
+    """
     if os.path.exists(f"{output_path}") and not force:
         LOG.warning(f"Output file {output_path} already exists. Use --force or -f to allow writing over existing file")
         return
