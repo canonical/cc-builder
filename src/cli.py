@@ -129,7 +129,7 @@ def generate(
         gather_public_keys=gather_public_keys,
         password=password,
         disabled_configs=disabled_configs,
-        rename_to_ubuntu_user=True,
+        rename_to_ubuntu_user=rename_to_ubuntu_user,
     )
 
 
