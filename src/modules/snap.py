@@ -28,7 +28,6 @@ class Snap:
 
 
 def get_installed_snaps():
-    LOG.debug("Gathering installed snaps")
     # Run snap list command to get a list of installed snaps
     result = subprocess.run("snap list", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     # Parse the output to extract snap names
@@ -53,7 +52,6 @@ def get_installed_snaps():
             else:
                 blacklisted_snaps.append(snap_name)
     LOG.debug(f"Found {len(installed_snaps)} installed snaps")
-    LOG.debug(f"Blacklisted snaps: {', '.join(blacklisted_snaps)}")
     installable_snaps = [snap for snap in installed_snaps if "+git" not in snap.version]
     return installable_snaps
 

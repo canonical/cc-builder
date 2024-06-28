@@ -8,7 +8,9 @@ LOG = logging.getLogger(__name__)
 
 
 def get_hostname():
-    return socket.gethostname()
+    hostname = socket.gethostname()
+    LOG.debug(f"Found hostname: {hostname}")
+    return hostname
 
 
 @dataclasses.dataclass

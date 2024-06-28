@@ -4,14 +4,15 @@ import os
 import click
 
 from generator import create_cloud_init_config
-from logger import configure_logging
+from logger import configure_logging, set_console_to_verbose
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger()
 
 
 @click.group()
 @click.option(
     "--log-level",
+    "--log_level",
     default="INFO",
     help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
 )
@@ -25,6 +26,13 @@ def cli(ctx, log_level):
 
 @cli.command()
 @click.pass_context
+# add verbose flag for cli output
+@click.option(
+    "-v",
+    "--verbose",
+    is_flag=True,
+    help="Enable verbose output.",
+)
 @click.option(
     "-o",
     "--output-path",
@@ -95,6 +103,7 @@ def cli(ctx, log_level):
 )
 def generate(
     ctx,
+    verbose,
     output_path,
     force,
     gather_hostname,
@@ -109,6 +118,10 @@ def generate(
     """
     Generate a cloud-init configuration file for the current machine.
     """
+
+    if verbose:
+        set_console_to_verbose()
+
     if os.path.exists(f"{output_path}") and not force:
         LOG.warning(f"Output file {output_path} already exists. Use --force or -f to allow writing over existing file")
         return

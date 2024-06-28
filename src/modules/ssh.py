@@ -37,9 +37,10 @@ def get_ssh_import_id_entries() -> List[SSHImportIDEntry]:
                 key_server, username = line.strip().split(" ")[-1].split(":")
                 if SSHImportIDEntry(key_server, username) not in entries:
                     entries.append(SSHImportIDEntry(key_server, username))
+        LOG.debug(f"Found {len(entries)} ssh-import-id entries")
         return entries
     except FileNotFoundError:
-        LOG.warning("No authorized_keys file found")
+        LOG.debug("No authorized_keys file found")
         return []
 
 
@@ -51,9 +52,10 @@ def get_authorized_keys_lines() -> List[str]:
                 for l in authorized_keys_file.readlines()
                 if l.strip() != "" and not l.strip().startswith("#")
             ]
+        LOG.debug(f"Found {len(lines)} ssh keys in authorized_keys file")
         return lines
     except FileNotFoundError:
-        LOG.warning("No authorized_keys file found")
+        LOG.debug("No authorized_keys file found")
         return []
 
 
@@ -70,7 +72,7 @@ def is_password_authentication_disabled() -> bool:
         LOG.debug(f"Password authentication status line found: {r.stdout.strip()}")
         return "no" in r.stdout
     except:
-        LOG.warning("Could not determine password authentication status")
+        LOG.debug("Could not determine password authentication status")
         return None
 
 
@@ -86,7 +88,7 @@ def is_root_login_disabled() -> bool:
         LOG.debug(f"Root login status line found: {r.stdout.strip()}")
         return "no" in r.stdout
     except:
-        LOG.warning("Could not determine root login status")
+        LOG.debug("Could not determine root login status")
         return None
 
 
@@ -145,6 +147,7 @@ def get_public_ssh_keys() -> List[str]:
             is_valid = any([content.startswith(key_type) for key_type in supported_public_key_types])
             if is_valid:
                 public_keys.append(SSHKeyFile(path=os.path.expanduser("~/.ssh/") + file, content=content))
+    LOG.debug(f"Found {len(public_keys)} public keys")
     return public_keys
 
 def replace_user_path(content, user):

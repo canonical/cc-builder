@@ -11,12 +11,19 @@ LOG = logging.getLogger(__name__)
 
 def get_shell() -> str:
     result = subprocess.run("echo $SHELL", shell=True, stdout=subprocess.PIPE, text=True)
-    return result.stdout.strip()
+    shell = result.stdout.strip()
+    LOG.debug("Found shell: %s", shell.split("/")[-1])
+    return shell
 
 
 def get_sudo(user: str) -> bool:
     result = subprocess.run("getent group sudo", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    return user in result.stdout.strip().split(":")[3].split(",")
+    is_sudo = user in result.stdout.strip().split(":")[3].split(",")
+    if not is_sudo:
+        LOG.debug("User '%s' is not in the sudo group", user)
+    else:
+        LOG.debug("User '%s' is in the sudo group", user)
+    return is_sudo
 
 
 @dataclasses.dataclass

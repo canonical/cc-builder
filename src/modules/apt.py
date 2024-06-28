@@ -35,6 +35,7 @@ def deb822_to_one_line(deb822_repo):
     repo_line += deb822_repo["uris"] + " "
     repo_line += deb822_repo["suites"] + " "
     repo_line += deb822_repo["components"]
+
     return repo_line
 
 
@@ -83,7 +84,6 @@ def parse_repository_line(line: str, file_path=None) -> AptRepository:
 
 
 def get_apt_repositories() -> List[str]:
-    LOG.debug("Gathering apt repositories")
     sources_list_d_path = "/etc/apt/sources.list.d/"
     deb822_sources_repos = []
     apt_list_repos = []
@@ -132,7 +132,6 @@ def get_simplified_apt_source_line(line: str) -> str:
 
 
 def get_apt_packages():
-    LOG.debug("Gathering installed apt packages")
     result = subprocess.run("apt-mark showmanual", shell=True, stdout=subprocess.PIPE, text=True)
     lines = result.stdout.strip().split("\n")
     result = [AptPackage(name=line.strip()) for line in lines]

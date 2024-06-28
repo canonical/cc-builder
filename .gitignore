@@ -25,3 +25,4 @@ cover
 *.ignore*
 notes.md
 notes.txt
+*.log
