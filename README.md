@@ -1,11 +1,11 @@
 # not-cloud-init
 
-![Static Badge](https://img.shields.io/badge/version-v0.9.2-blue)
+![Static Badge](https://img.shields.io/badge/version-v0.9.3-blue)
 
 A tool for gathering information about a currently running machine and generating a basic cloud-config that can be used as a good starting point for re-creating the original machine via cloud-init.  
 Since this tool only generates a cloud-config file for cloud-init to use, this tool is inherently limited by cloud-init capabilities.
 
-## Current State: Beta (v0.9.2)
+## Current State: Beta (v0.9.3)
 The tool is currently in a beta state and has all the main features implemented.  
 
 A CLI has now been implemented to allow for customizing the functionality of this tool.  
@@ -129,6 +129,7 @@ Usage: python src/cli.py generate [OPTIONS]
   Generate a cloud-init configuration file for the current machine.
 
 Options:
+  -v, --verbose            Enable verbose output.
   -o, --output-path TEXT   Path to output file.
   -f, --force              Write over output file if it already exists.
   --gather-hostname        Enable gathering the hostname of the machine. This
@@ -161,6 +162,13 @@ python src/cli.py generate
 ```
 This will output a cloud-config file named cloud-config.yaml with the default settings.
 
+#### Minimum Call with Verbose Output
+```bash
+python src/cli.py generate -v
+```
+This will output a cloud-config file named cloud-config.yaml with the default settings
+and will output more verbose information about the process to console. 
+
 #### Custom Output Path Example 
 ```bash
 python src/cli.py generate -o cc.yaml
@@ -177,19 +185,17 @@ But now, the tool will overwrite cc.yaml if it already exists.
 
 #### Disable Apt Example
 ```bash
-python src/cli.py --log-level DEBUG generate -f --disable-apt
+python src/cli.py generate -f --disable-apt
 ```
 This will gather all other configs except for the apt sources and packages installed on the system.
-And will overwrite the output file if it already exists.  
-Also, the log level is set to DEBUG to show more information about the process.
+And will overwrite the output file if it already exists.
 
 #### Rename User Example
 ```bash
-python src/cli.py --log-level DEBUG generate -o cc.yaml --rename-to-ubuntu-user
+python src/cli.py generate -o cc.yaml --rename-to-ubuntu-user
 ```
 This will gather the config for the user the tool is run as, but rename the user to "ubuntu" in the cloud-config file
 so that when the cloud-config is used to create a new machine, the user will be named "ubuntu" instead of the original.
-Also, the log level is set to DEBUG to show more information about the process.
 
 #### Complex Example
 ```bash
@@ -197,7 +203,7 @@ python src/cli.py --log-level DEBUG generate  --password letmein --disable-apt -
 ```
 This will generate a cloud-config file with the password "letmein" for the user, disable the gathering of apt and snap
 configs, force overwrite the output file if it already exists, capture the hostname of the machine, gather the public
-keys for recreation on the new machine, and sets the log level to DEBUG. 
+keys for recreation on the new machine, and sets the log level to DEBUG for the log file. 
 
 
 ## Gathering feedback
@@ -211,13 +217,15 @@ behavior involving the newly created CLI.
 
 2. Run the not-cloud-init CLI:  
    * Follow the instructions above for suggested usage and mess around with the CLI options to see what the tool can do.  
-   * At the very least, invoke the tool trying out both DEBUG and INFO log levels so that you can provide feedback on the log output as well:
+   * At the very least, invoke the tool trying out both standard and verbose output levels so that you can provide feedback on the cli output as well:
 
+      Standard Output:
       ```bash
-      python src/cli.py --log-level DEBUG generate -f
+      python src/cli.py generate -f
       ```
+      Verbose Output:
       ```bash
-      python src/cli.py --log-level INFO generate -f
+      python src/cli.py generate -f -v
       ```
 
 3. Look over the content of the generated cloud-config file and then fill out this google form with your feedback
