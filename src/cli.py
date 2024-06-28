@@ -36,7 +36,7 @@ def cli(ctx, log_level):
 @click.option(
     "-o",
     "--output-path",
-    default="cloud-init-config.yaml",
+    default="cloud-config.yaml",
     help="Path to output file.",
 )
 @click.option(
