@@ -3,7 +3,7 @@ import logging
 import os
 import subprocess
 
-from custom_types import BaseConfig
+from not_cloud_init.custom_types import BaseConfig
 
 LOG = logging.getLogger(__name__)
 from typing import Optional, Dict, List

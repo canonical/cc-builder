@@ -22,10 +22,10 @@ source venv/bin/activate
 
 # Install dependencies
 echo "Installing dependencies..."
-pip install -r requirements.txt
+pip install .
 
 # Check if the CLI is working
 echo "Checking if CLI is working..."
-python src/cli.py --help
+python -m not_cloud_init.cli --help
 
 echo "Installation complete."
