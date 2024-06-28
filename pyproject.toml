@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "not-cloud-init"
-version = "0.9.3"
+version = "0.9.4"
 description = ""
 authors = [
     { name="a-dubs", email="thee_dubski@guy.com" }
