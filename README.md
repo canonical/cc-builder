@@ -1,6 +1,6 @@
 # not-cloud-init
 
-![Static Badge](https://img.shields.io/badge/version-v0.9.4-blue)
+![Static Badge](https://img.shields.io/badge/version-v0.9.4-blue) ![Static Badge](https://img.shields.io/badge/Python-%3E=3.8-green)
 
 A tool for gathering information about a currently running machine and generating a basic cloud-config that can be used as a good starting point for re-creating the original machine via cloud-init.  
 Since this tool only generates a cloud-config file for cloud-init to use, this tool is inherently limited by cloud-init capabilities.
