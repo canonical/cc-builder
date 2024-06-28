@@ -4,12 +4,12 @@ import time
 import yaml
 from typing import Optional, Dict, List
 
-from custom_types import BaseConfig
-from modules.apt import AptConfig
-from modules.hostname import HostnameConfig
-from modules.snap import SnapConfig
-from modules.ssh import SSHConfig
-from modules.user import UserConfig
+from not_cloud_init.custom_types import BaseConfig
+from not_cloud_init.modules.apt import AptConfig
+from not_cloud_init.modules.hostname import HostnameConfig
+from not_cloud_init.modules.snap import SnapConfig
+from not_cloud_init.modules.ssh import SSHConfig
+from not_cloud_init.modules.user import UserConfig
 
 LOG = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ import subprocess
 from typing import Optional, Dict, List
 import yaml
 
-from custom_types import BaseConfig
+from not_cloud_init.custom_types import BaseConfig
 
 LOG = logging.getLogger(__name__)
 

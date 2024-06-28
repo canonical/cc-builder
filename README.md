@@ -1,11 +1,11 @@
 # not-cloud-init
 
-![Static Badge](https://img.shields.io/badge/version-v0.9.3-blue)
+![Static Badge](https://img.shields.io/badge/version-v0.9.4-blue)
 
 A tool for gathering information about a currently running machine and generating a basic cloud-config that can be used as a good starting point for re-creating the original machine via cloud-init.  
 Since this tool only generates a cloud-config file for cloud-init to use, this tool is inherently limited by cloud-init capabilities.
 
-## Current State: Beta (v0.9.3)
+## Current State: Beta (v0.9.4)
 The tool is currently in a beta state and has all the main features implemented.  
 
 A CLI has now been implemented to allow for customizing the functionality of this tool.  
@@ -56,11 +56,11 @@ This CLI tool gathers information from your system and generates a cloud-config 
    ```
 3. Install the dependencies
    ```bash
-   pip install -r requirements.txt
+   pip install .
    ```
 4. Check if the CLI is working
    ```bash
-   python src/cli.py --help
+   python -m not_cloud_init.cli --help
    ```
 
 ### Auto install (Recommended for fresh containers/VMs only):
@@ -89,11 +89,11 @@ source venv/bin/activate
 
 # Install dependencies
 echo "Installing dependencies..."
-pip install -r requirements.txt
+pip install .
 
 # Check if the CLI is working
 echo "Checking if CLI is working..."
-python src/cli.py --help
+python -m not_cloud_init.cli --help
 
 echo "Installation complete."
 ```
@@ -104,7 +104,7 @@ echo "Installation complete."
 The CLI entrypoint is `cli.py` in the `src` directory.
 
 ```bash
-Usage: python src/cli.py [OPTIONS] COMMAND [ARGS]...
+Usage: python -m not_cloud_init.cli [OPTIONS] COMMAND [ARGS]...
 
   CLI tool for system package management.
 
@@ -124,7 +124,7 @@ To generate a cloud-config file, use the `generate` command.
 The `generate` command has the following CLI usage:
 
 ```bash
-Usage: python src/cli.py generate [OPTIONS]
+Usage: python -m not_cloud_init.cli generate [OPTIONS]
 
   Generate a cloud-init configuration file for the current machine.
 
@@ -158,48 +158,56 @@ Options:
 
 #### Minimum Call
 ```bash
-python src/cli.py generate
+python -m not_cloud_init.cli generate
 ```
 This will output a cloud-config file named cloud-config.yaml with the default settings.
 
 #### Minimum Call with Verbose Output
 ```bash
-python src/cli.py generate -v
+python -m not_cloud_init.cli generate -v
 ```
 This will output a cloud-config file named cloud-config.yaml with the default settings
 and will output more verbose information about the process to console. 
 
 #### Custom Output Path Example 
 ```bash
-python src/cli.py generate -o cc.yaml
+python -m not_cloud_init.cli generate -o cc.yaml
 ```
 This will output a cloud-config file named cc.yaml with the default settings.  
 If cc.yaml already exists, the tool will not overwrite it because the `-f` flag is not passed.
 
 #### Overwrite Custom Output Path Example
 ```bash
-python src/cli.py generate -o cc.yaml -f
+python -m not_cloud_init.cli generate -o cc.yaml -f 
 ```
 This will output a cloud-config file named cc.yaml with the default settings.  
 But now, the tool will overwrite cc.yaml if it already exists.
 
 #### Disable Apt Example
 ```bash
-python src/cli.py generate -f --disable-apt
+python -m not_cloud_init.cli --log-level DEBUG generate -f --disable-apt
 ```
 This will gather all other configs except for the apt sources and packages installed on the system.
 And will overwrite the output file if it already exists.
 
 #### Rename User Example
 ```bash
-python src/cli.py generate -o cc.yaml --rename-to-ubuntu-user
+python -m not_cloud_init.cli --log-level DEBUG generate -o cc.yaml --rename-to-ubuntu-user
 ```
 This will gather the config for the user the tool is run as, but rename the user to "ubuntu" in the cloud-config file
 so that when the cloud-config is used to create a new machine, the user will be named "ubuntu" instead of the original.
 
 #### Complex Example
 ```bash
-python src/cli.py --log-level DEBUG generate  --password letmein --disable-apt --disable-snap -f --gather-hostname --gather-public-keys
+python -m not_cloud_init.cli \
+    --log-level DEBUG \
+    generate  \
+    --password letmein \
+    --disable-apt \
+    --disable-snap \
+    -f \
+    --gather-hostname \
+    --gather-public-keys
 ```
 This will generate a cloud-config file with the password "letmein" for the user, disable the gathering of apt and snap
 configs, force overwrite the output file if it already exists, capture the hostname of the machine, gather the public
@@ -221,11 +229,11 @@ behavior involving the newly created CLI.
 
       Standard Output:
       ```bash
-      python src/cli.py generate -f
+      python -m not_cloud_init.cli generate -f
       ```
       Verbose Output:
       ```bash
-      python src/cli.py generate -f -v
+      python -m not_cloud_init.cli generate -f -v
       ```
 
 3. Look over the content of the generated cloud-config file and then fill out this google form with your feedback

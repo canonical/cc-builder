@@ -1,10 +1,10 @@
 import logging
 import os
 
-import click
+import rich_click as click
 
-from generator import create_cloud_init_config
-from logger import configure_logging, set_console_to_verbose
+from not_cloud_init.generator import create_cloud_init_config
+from not_cloud_init.logger import configure_logging, set_console_to_verbose
 
 LOG = logging.getLogger()
 
@@ -145,6 +145,8 @@ def generate(
         rename_to_ubuntu_user=rename_to_ubuntu_user,
     )
 
+def main():
+    cli(obj={})
 
 if __name__ == "__main__":
-    cli(obj={})
+    main()

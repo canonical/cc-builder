@@ -4,7 +4,7 @@ import os
 import subprocess
 from typing import Dict
 
-from custom_types import BaseConfig
+from not_cloud_init.custom_types import BaseConfig
 
 LOG = logging.getLogger(__name__)
 
