@@ -1,0 +1,26 @@
+name: not-cloud-init
+base: core24
+version: '0.9.4'
+summary: cloud-init user-data generator
+description: |
+  A tool for gathering information about a currently running machine and
+  generating a basic cloud-config that can be used as a good starting point for
+  re-creating the original machine via cloud-init.
+
+grade: devel
+confinement: classic
+
+apps:
+  not-cloud-init:
+    environment:
+      PYTHONPATH: $SNAP/lib/python3.12/site-packages/
+    command: bin/nci
+
+parts:
+  not-cloud-init:
+    plugin: python
+    source: .
+    stage-packages:
+      - python3.12-minimal
+    build-attributes:
+      - enable-patchelf

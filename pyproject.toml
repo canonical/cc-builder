@@ -42,3 +42,6 @@ follow_imports = "silent"
 warn_unused_ignores = "true"
 warn_redundant_casts = "true"
 exclude=[]
+
+[tool.setuptools.packages.find]
+exclude = ["snap"]
