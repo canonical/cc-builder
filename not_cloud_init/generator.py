@@ -10,8 +10,8 @@ from not_cloud_init.modules.hostname import HostnameConfig
 from not_cloud_init.modules.snap import SnapConfig
 from not_cloud_init.modules.ssh import SSHConfig
 from not_cloud_init.modules.user import UserConfig
+from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
 
-LOG = logging.getLogger(__name__)
 
 #######################################################################################################################
 #######################################################################################################################
@@ -19,13 +19,12 @@ LOG = logging.getLogger(__name__)
 #######################################################################################################################
 #######################################################################################################################
 
-
 def create_cloud_init_config(
     output_path: str,
     hostname_enabled: bool = False,
     gather_public_keys: bool = False,
     password: str = None,
-    disabled_configs: Dict[str, bool] = [],
+    disabled_configs: Dict[str, bool] = {},
     rename_to_ubuntu_user: bool = False,
     **kwargs,
 ):
@@ -36,26 +35,26 @@ def create_cloud_init_config(
         result = subprocess.run("whoami", shell=True, stdout=subprocess.PIPE, text=True)
         current_user = result.stdout.strip()
 
-    LOG.info("Initializing all not-cloud-init modules")
+    print_debug("Initializing all not-cloud-init modules")
 
     configs: List[BaseConfig] = []
 
     if "apt" not in disabled_configs:
         configs.append(AptConfig())
     else:
-        LOG.debug("Apt config disabled")
+        print_debug("Apt config disabled")
     if "snap" not in disabled_configs:
         configs.append(SnapConfig())
     else:
-        LOG.debug("Snap config disabled")
+        print_debug("Snap config disabled")
     if "ssh" not in disabled_configs:
         configs.append(SSHConfig(current_user=current_user, gather_public_keys=gather_public_keys))
     else:
-        LOG.debug("SSH config disabled")
+        print_debug("SSH config disabled")
     if "user" not in disabled_configs:
         configs.append(UserConfig(name=current_user, plaintext_password=password))
     else:
-        LOG.debug("User config disabled")
+        print_debug("User config disabled")
 
     # enable optional modules
     if hostname_enabled:
@@ -63,7 +62,7 @@ def create_cloud_init_config(
 
     cloud_config: Dict = {}
 
-    LOG.info("Gathering data for each not-cloud-init module")
+    print_info("Gathering data for each not-cloud-init module", ignore_quiet=True)
     for config in configs:
         # gather data for each config
         config.gather()
@@ -76,11 +75,13 @@ def create_cloud_init_config(
         # merge cc_dict into cloud_config
         cloud_config.update(cc_dict)
 
-    if "user" not in disabled_configs and cloud_config["users"] and cloud_config["users"][0]["shell"] == "/usr/bin/zsh":
+    if "user" not in disabled_configs and cloud_config.get("users") and cloud_config["users"][0].get("shell") == "/usr/bin/zsh":
         if not "zsh" in cloud_config.get("packages", []):
-            LOG.debug("User has zsh as shell, so adding zsh to list of packages.")
+            print_debug("User has zsh as shell, so adding zsh to list of packages.")
             cloud_config["packages"].append("zsh")
-    LOG.info("Done gathering data for all not-cloud-init modules")
+
+    print_info("Done gathering data for all not-cloud-init modules", ignore_quiet=True)
+
     with open(f"{output_path}", "w") as f:
         f.write("#cloud-config\n")
 
@@ -99,4 +100,4 @@ def create_cloud_init_config(
         f.write("# Cloud config created by not-cloud-init tool written by @a-dubs.\n")
         f.write("#" * 80 + "\n")
 
-    LOG.info(f"Wrote cloud-init config to file: {output_path}")
+    print_info(f"Wrote cloud-init config to file: {output_path}", ignore_quiet=True)

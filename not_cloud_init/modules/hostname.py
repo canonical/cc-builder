@@ -1,15 +1,13 @@
 import dataclasses
-import logging
 import socket
 
+from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
 from not_cloud_init.custom_types import BaseConfig
-
-LOG = logging.getLogger(__name__)
 
 
 def get_hostname():
     hostname = socket.gethostname()
-    LOG.debug(f"Found hostname: {hostname}")
+    print_debug(f"Found hostname: {hostname}")
     return hostname
 
 
@@ -18,7 +16,7 @@ class HostnameConfig(BaseConfig):
     hostname: str = None
 
     def gather(self):
-        LOG.debug("Gathering HostnameConfig")
+        print_module_header("Gathering Hostname Configuration")
         self.hostname = get_hostname()
 
     def generate_cloud_config(self):

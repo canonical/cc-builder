@@ -1,14 +1,13 @@
 import dataclasses
-import logging
 import re
 import subprocess
 
 from typing import Optional, Dict, List
 import yaml
 
+from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
 from not_cloud_init.custom_types import BaseConfig
 
-LOG = logging.getLogger(__name__)
 
 BLACKLISTED_SNAP_NAMES_REGEX_PATTERNS = [
     "^core[0-9]*",
@@ -51,7 +50,7 @@ def get_installed_snaps():
                 )
             else:
                 blacklisted_snaps.append(snap_name)
-    LOG.debug(f"Found {len(installed_snaps)} installed snaps")
+    print_debug(f"Found {len(installed_snaps)} installed snaps")
     installable_snaps = [snap for snap in installed_snaps if "+git" not in snap.version]
     return installable_snaps
 
@@ -62,7 +61,7 @@ class SnapConfig(BaseConfig):
     snaps: List[Snap] = dataclasses.field(default_factory=list)
 
     def gather(self):
-        LOG.debug("Gathering SnapConfig")
+        print_module_header("Gathering Snap Configuration")
         self.snaps = get_installed_snaps()
 
     def generate_cloud_config(self) -> Dict:

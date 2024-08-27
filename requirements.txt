@@ -1,3 +1,4 @@
 click>=8
 PyYAML>=6
 platformdirs
+rich

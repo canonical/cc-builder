@@ -5,33 +5,17 @@ import rich_click as click
 
 from not_cloud_init.generator import create_cloud_init_config
 from not_cloud_init.logger import configure_logging, set_console_to_verbose
+from not_cloud_init.console_output import set_quiet_mode
 
 LOG = logging.getLogger()
 
-
-@click.group()
-@click.option(
-    "--log-level",
-    "--log_level",
-    default="INFO",
-    help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
-)
+@click.command()
 @click.pass_context
-def cli(ctx, log_level):
-    """CLI tool for system package management."""
-    ctx.ensure_object(dict)
-    ctx.obj["LOG_LEVEL"] = log_level
-    configure_logging(log_level)
-
-
-@cli.command()
-@click.pass_context
-# add verbose flag for cli output
 @click.option(
-    "-v",
-    "--verbose",
+    "-q",
+    "--quiet",
     is_flag=True,
-    help="Enable verbose output.",
+    help="Enable quiet output. Only critical errors and essential information will be displayed.", 
 )
 @click.option(
     "-o",
@@ -51,14 +35,6 @@ def cli(ctx, log_level):
     default=False,
     help="Enable gathering the hostname of the machine. This is will cause issues unless this exact machine is being redeployed using the generated cloud-init config.",
 )
-# # enable gathering of private key files
-# @click.option(
-#     "--gather-private-keys",
-#     prompt="Gather private key files?",
-#     is_flag=True,
-#     help="Enable gathering of private key files. Only use this if you are going to keep the generated cloud-config private since the private key will be stored in plain text within the cloud-config.",
-# )
-# enable gathering of all public key files in the ~/.ssh directory
 @click.option(
     "--gather-public-keys",
     is_flag=True,
@@ -70,7 +46,6 @@ def cli(ctx, log_level):
     help="Set the password for the user. WARNING: This is incredibly insecure and is stored in plaintext in the cloud-init config.",
     required=False,
 )
-# add disable flags for each config
 @click.option(
     "--disable-apt",
     is_flag=True,
@@ -101,9 +76,12 @@ def cli(ctx, log_level):
     help="Keep the current user but rename it to the default 'ubuntu' user.",
     default=False,
 )
-def generate(
+# add -h as a shortcut for --help
+@click.help_option("-h", "--help")
+@click.version_option()
+def cli(
     ctx,
-    verbose,
+    quiet,
     output_path,
     force,
     gather_hostname,
@@ -119,8 +97,10 @@ def generate(
     Generate a cloud-init configuration file for the current machine.
     """
 
-    if verbose:
-        set_console_to_verbose()
+    configure_logging()
+
+    if quiet:
+        set_quiet_mode(True)
 
     if os.path.exists(f"{output_path}") and not force:
         LOG.warning(f"Output file {output_path} already exists. Use --force or -f to allow writing over existing file")
@@ -144,6 +124,7 @@ def generate(
         disabled_configs=disabled_configs,
         rename_to_ubuntu_user=rename_to_ubuntu_user,
     )
+
 
 def main():
     cli(obj={})
