@@ -2,18 +2,17 @@ import dataclasses
 import logging
 import os
 import subprocess
+from typing import List
 
 from not_cloud_init.custom_types import BaseConfig
+from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
 
 LOG = logging.getLogger(__name__)
-from typing import Optional, Dict, List
-
 
 @dataclasses.dataclass
 class SSHImportIDEntry:
     key_server: str  # usually "lp" or "gh"
     username: str  # the username of the user on the key server
-
 
 @dataclasses.dataclass
 class SSHKeyFile:
@@ -21,14 +20,11 @@ class SSHKeyFile:
     content: str
     public: bool = True
 
-
 def trim_ssh_key(content):
     return " ".join(content.split()[:2])
 
-
 def get_ssh_import_id_entries() -> List[SSHImportIDEntry]:
     try:
-        # entries in ~/.ssh/authorized_keys will contain " # ssh-import-id lp:xxx" or " # ssh-import-id gh:xxx"
         with open(os.path.expanduser("~/.ssh/authorized_keys"), "r") as authorized_keys_file:
             lines = authorized_keys_file.readlines()
         entries = []
@@ -37,12 +33,11 @@ def get_ssh_import_id_entries() -> List[SSHImportIDEntry]:
                 key_server, username = line.strip().split(" ")[-1].split(":")
                 if SSHImportIDEntry(key_server, username) not in entries:
                     entries.append(SSHImportIDEntry(key_server, username))
-        LOG.debug(f"Found {len(entries)} ssh-import-id entries")
+        print_debug(f"Found {len(entries)} ssh-import-id entries")
         return entries
     except FileNotFoundError:
-        LOG.debug("No authorized_keys file found")
+        print_warning("No authorized_keys file found")
         return []
-
 
 def get_authorized_keys_lines() -> List[str]:
     try:
@@ -52,14 +47,12 @@ def get_authorized_keys_lines() -> List[str]:
                 for l in authorized_keys_file.readlines()
                 if l.strip() != "" and not l.strip().startswith("#")
             ]
-        LOG.debug(f"Found {len(lines)} ssh keys in authorized_keys file")
+        print_debug(f"Found {len(lines)} ssh keys in authorized_keys file")
         return lines
     except FileNotFoundError:
-        LOG.debug("No authorized_keys file found")
+        print_warning("No authorized_keys file found")
         return []
 
-
-# grep "^PasswordAuthentication*" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*
 def is_password_authentication_disabled() -> bool:
     try:
         r = subprocess.run(
@@ -69,12 +62,11 @@ def is_password_authentication_disabled() -> bool:
             text=True,
             capture_output=True,
         )
-        LOG.debug(f"Password authentication status line found: {r.stdout.strip()}")
+        print_debug(f"Password authentication status line found: {r.stdout.strip()}")
         return "no" in r.stdout
     except:
-        LOG.debug("Could not determine password authentication status")
+        print_warning("Could not determine password authentication status")
         return None
-
 
 def is_root_login_disabled() -> bool:
     try:
@@ -85,99 +77,57 @@ def is_root_login_disabled() -> bool:
             text=True,
             capture_output=True,
         )
-        LOG.debug(f"Root login status line found: {r.stdout.strip()}")
+        print_debug(f"Root login status line found: {r.stdout.strip()}")
         return "no" in r.stdout
     except:
-        LOG.debug("Could not determine root login status")
+        print_warning("Could not determine root login status")
         return None
 
-
 def get_private_ssh_keys() -> List[str]:
-    # check all files in ~/.ssh/ for private keys
-    # get all files in ~/.ssh/
-    # then check if they are private keys by checking the first line
     private_keys = []
     for file in os.listdir(os.path.expanduser("~/.ssh/")):
-        # make sure item is a file and not a directory
         if os.path.isfile(os.path.expanduser("~/.ssh/") + file):
             with open(os.path.expanduser("~/.ssh/") + file, "r") as f:
                 content = f.read()
-        if "BEGIN RSA PRIVATE KEY" in content.split("\n")[0] or "BEGIN OPENSSH PRIVATE KEY" in content.split("\n")[0]:
-            private_keys.append(content)
-    LOG.debug(f"Found {len(private_keys)} private keys")
+            if "BEGIN RSA PRIVATE KEY" in content.split("\n")[0] or "BEGIN OPENSSH PRIVATE KEY" in content.split("\n")[0]:
+                private_keys.append(content)
+    print_debug(f"Found {len(private_keys)} private keys")
     return private_keys
 
-
-def get_public_ssh_keys() -> List[str]:
-    # check all files in ~/.ssh/ for public keys
-    # get all files in ~/.ssh/
-    # then check if they are public keys by checking the first line
-    # all supported public key types for cloud-init:
-    # rsa
-    # ecdsa
-    # ed25519
-    # ecdsa-sha2-nistp256-cert-v01@openssh.com
-    # ecdsa-sha2-nistp256
-    # ecdsa-sha2-nistp384-cert-v01@openssh.com
-    # ecdsa-sha2-nistp384
-    # ecdsa-sha2-nistp521-cert-v01@openssh.com
-    # ecdsa-sha2-nistp521
-    # sk-ecdsa-sha2-nistp256-cert-v01@openssh.com
-    # sk-ecdsa-sha2-nistp256@openssh.com
-    # sk-ssh-ed25519-cert-v01@openssh.com
-    # sk-ssh-ed25519@openssh.com
-    # ssh-ed25519-cert-v01@openssh.com
-    # ssh-ed25519
-    # ssh-rsa-cert-v01@openssh.com
-    # ssh-rsa
-    # ssh-xmss-cert-v01@openssh.com
-    # ssh-xmss@openssh.com
-    supported_public_key_types = [
-        "ssh-rsa",
-    ]
-
+def get_public_ssh_keys() -> List[SSHKeyFile]:
+    supported_public_key_types = ["ssh-rsa"]
     public_keys = []
     for file in os.listdir(os.path.expanduser("~/.ssh/")):
         if file == "authorized_keys":
             continue
-        # make sure item is a file and not a directory
         if os.path.isfile(os.path.expanduser("~/.ssh/") + file):
             with open(os.path.expanduser("~/.ssh/") + file, "r") as f:
                 content = trim_ssh_key(f.read().strip())
             is_valid = any([content.startswith(key_type) for key_type in supported_public_key_types])
             if is_valid:
                 public_keys.append(SSHKeyFile(path=os.path.expanduser("~/.ssh/") + file, content=content))
-    LOG.debug(f"Found {len(public_keys)} public keys")
+    print_debug(f"Found {len(public_keys)} public keys")
     return public_keys
 
 def replace_user_path(content, user):
-    # get /home/*whatever*/ path and replace it with user
-    return f"/home/{user}/" + content.split("/home/",1)[1].split("/",1)[1]
-
-def replace_user_path(content, user):
-    # get /home/*whatever*/ path and replace it with user
     return f"/home/{user}/" + content.split("/home/", 1)[1].split("/", 1)[1]
-
 
 @dataclasses.dataclass
 class SSHConfig(BaseConfig):
-    # https://cloudinit.readthedocs.io/en/latest/reference/modules.html#ssh
     current_user: str
     authorized_keys_lines: List[str] = dataclasses.field(default_factory=list)
     disable_root: bool = True
     disable_password_authentication: bool = True
     ssh_import_id: List[SSHImportIDEntry] = dataclasses.field(default_factory=list)
-    # private_ssh_keys: List[SSHKeyFile] = dataclasses.field(default_factory=list)
     public_ssh_keys: List[SSHKeyFile] = dataclasses.field(default_factory=list)
     gather_public_keys: bool = False
 
     def gather(self):
-        LOG.debug("Gathering SSHConfig")
+        print_module_header("Gathering SSH Configuration")
         self.disable_root = is_root_login_disabled()
         self.disable_password_authentication = is_password_authentication_disabled()
         self.ssh_import_id = get_ssh_import_id_entries()
         self.authorized_keys_lines = get_authorized_keys_lines()
-        # self.private_ssh_keys = get_private_ssh_keys()
         self.public_ssh_keys = get_public_ssh_keys()
 
     def generate_cloud_config(self):

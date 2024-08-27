@@ -1,16 +1,13 @@
 import dataclasses
-import logging
 import os
 import re
 import subprocess
 from typing import Optional, Dict, List
+from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
 
 import yaml
 
 from not_cloud_init.custom_types import BaseConfig
-
-LOG = logging.getLogger(__name__)
-
 
 @dataclasses.dataclass
 class AptRepository:
@@ -47,7 +44,7 @@ def get_sources_list_lines() -> List[str]:
         for line in sources_list_file:
             if line.startswith("deb"):
                 sources_list.append(line.strip())
-    LOG.debug(f"Found {len(sources_list)} lines in sources.list")
+    print_debug(f"Found {len(sources_list)} lines in sources.list")
     return sources_list
 
 
@@ -118,8 +115,8 @@ def get_apt_repositories() -> List[str]:
                         components=parsed_repo["components"].split(),
                     )
                 )
-    LOG.debug(f"Found {len(apt_list_repos)} old-style one-line repositories in sources.list.d")
-    LOG.debug(f"Found {len(deb822_sources_repos)} new-style deb822 repositories in sources.list.d")
+    print_debug(f"Found {len(apt_list_repos)} old-style one-line repositories in sources.list.d")
+    print_debug(f"Found {len(deb822_sources_repos)} new-style deb822 repositories in sources.list.d")
     return apt_list_repos + deb822_sources_repos
 
 
@@ -135,7 +132,7 @@ def get_apt_packages():
     result = subprocess.run("apt-mark showmanual", shell=True, stdout=subprocess.PIPE, text=True)
     lines = result.stdout.strip().split("\n")
     result = [AptPackage(name=line.strip()) for line in lines]
-    LOG.debug(f"Found {len(result)} installed apt packages")
+    print_debug(f"Found {len(result)} installed apt packages")
     return result
 
 
@@ -146,7 +143,7 @@ class AptConfig(BaseConfig):
     sources_list: List[str] = dataclasses.field(default_factory=list)
 
     def gather(self):
-        LOG.debug("Gathering AptConfig")
+        print_module_header("Gathering APT Configuration")
         self.sources = get_apt_repositories()
         self.sources_list = get_sources_list_lines()
         self.packages = get_apt_packages()

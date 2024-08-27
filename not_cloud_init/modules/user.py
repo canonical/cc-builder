@@ -1,18 +1,15 @@
 import dataclasses
-import logging
 import os
 import subprocess
 from typing import Dict
 
+from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
 from not_cloud_init.custom_types import BaseConfig
-
-LOG = logging.getLogger(__name__)
-
 
 def get_shell() -> str:
     result = subprocess.run("echo $SHELL", shell=True, stdout=subprocess.PIPE, text=True)
     shell = result.stdout.strip()
-    LOG.debug("Found shell: %s", shell.split("/")[-1])
+    print_debug(f"Found shell: {shell.split('/')[-1]}")
     return shell
 
 
@@ -20,9 +17,9 @@ def get_sudo(user: str) -> bool:
     result = subprocess.run("getent group sudo", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     is_sudo = user in result.stdout.strip().split(":")[3].split(",")
     if not is_sudo:
-        LOG.debug("User '%s' is not in the sudo group", user)
+        print_debug(f"User '{user}' is not in the sudo group")
     else:
-        LOG.debug("User '%s' is in the sudo group", user)
+        print_debug(f"User '{user}' is in the sudo group")
     return is_sudo
 
 
@@ -34,7 +31,7 @@ class UserConfig(BaseConfig):
     plaintext_password: str = None
 
     def gather(self):
-        LOG.debug("Gathering UserConfig")
+        print_module_header("Gathering User Configuration")
         self.sudo = get_sudo(user=self.name)
         self.shell = get_shell()
 
@@ -45,7 +42,7 @@ class UserConfig(BaseConfig):
                 "plain_text_passwd": self.plaintext_password,
                 "lock_passwd": False,
             }
-            LOG.debug("Adding plain text password '%s' for user '%s'", self.plaintext_password, self.name)
+            print_debug(f"Adding plain text password '{self.plaintext_password}' for user '{self.name}'")
         return {
             "users": [
                 {
