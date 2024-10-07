@@ -123,7 +123,6 @@ class SSHConfig(BaseConfig):
     gather_public_keys: bool = False
 
     def gather(self):
-        print_module_header("Gathering SSH Configuration")
         self.disable_root = is_root_login_disabled()
         self.disable_password_authentication = is_password_authentication_disabled()
         self.ssh_import_id = get_ssh_import_id_entries()

@@ -31,7 +31,6 @@ class UserConfig(BaseConfig):
     plaintext_password: str = None
 
     def gather(self):
-        print_module_header("Gathering User Configuration")
         self.sudo = get_sudo(user=self.name)
         self.shell = get_shell()
 

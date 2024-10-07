@@ -61,7 +61,6 @@ class SnapConfig(BaseConfig):
     snaps: List[Snap] = dataclasses.field(default_factory=list)
 
     def gather(self):
-        print_module_header("Gathering Snap Configuration")
         self.snaps = get_installed_snaps()
 
     def generate_cloud_config(self) -> Dict:

@@ -4,6 +4,7 @@ import re
 import subprocess
 from typing import Optional, Dict, List
 from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
+from ruamel.yaml.scalarstring import PreservedScalarString as pss
 
 import yaml
 
@@ -45,6 +46,7 @@ def get_sources_list_lines() -> List[str]:
             if line.startswith("deb"):
                 sources_list.append(line.strip())
     print_debug(f"Found {len(sources_list)} lines in sources.list")
+    print(sources_list)
     return sources_list
 
 
@@ -143,17 +145,17 @@ class AptConfig(BaseConfig):
     sources_list: List[str] = dataclasses.field(default_factory=list)
 
     def gather(self):
-        print_module_header("Gathering APT Configuration")
         self.sources = get_apt_repositories()
         self.sources_list = get_sources_list_lines()
         self.packages = get_apt_packages()
 
     def generate_cloud_config(self) -> Dict:
         known_sources = [repo for repo in self.sources if repo.name != "UNKNOWN"]
+        
         return {
             "apt": {
                 "sources": {repo.name: {"source": repo.repo_line_without_options} for repo in known_sources},
-                "sources_list": "\n".join(self.sources_list),
+                "sources_list": pss("\n".join(self.sources_list)),
             },
             "packages": [package.name for package in self.packages],
         }
