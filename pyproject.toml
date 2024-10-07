@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cc-builder"
-version = "0.9.4"
+version = "1.0.0"
 description = "An interactive command line tool for generating cloud-config files for cloud-init"
 authors = [
     { name="a-dubs", email="alecwarren19@gmail.com" }
