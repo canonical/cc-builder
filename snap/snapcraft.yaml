@@ -1,6 +1,6 @@
 name: cc-builder
 base: core24
-version: '0.9.4'
+version: '1.0.0'
 summary: cloud-init user-data generator
 description: |
   A tool for gathering information about a currently running machine and
