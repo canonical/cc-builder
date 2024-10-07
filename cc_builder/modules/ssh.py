@@ -4,15 +4,17 @@ import os
 import subprocess
 from typing import List
 
-from not_cloud_init.custom_types import BaseConfig
-from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
+from cc_builder.console_output import print_debug, print_error, print_info, print_module_header, print_warning
+from cc_builder.custom_types import BaseConfig
 
 LOG = logging.getLogger(__name__)
+
 
 @dataclasses.dataclass
 class SSHImportIDEntry:
     key_server: str  # usually "lp" or "gh"
     username: str  # the username of the user on the key server
+
 
 @dataclasses.dataclass
 class SSHKeyFile:
@@ -20,8 +22,10 @@ class SSHKeyFile:
     content: str
     public: bool = True
 
+
 def trim_ssh_key(content):
     return " ".join(content.split()[:2])
+
 
 def get_ssh_import_id_entries() -> List[SSHImportIDEntry]:
     try:
@@ -39,6 +43,7 @@ def get_ssh_import_id_entries() -> List[SSHImportIDEntry]:
         print_warning("No authorized_keys file found")
         return []
 
+
 def get_authorized_keys_lines() -> List[str]:
     try:
         with open(os.path.expanduser("~/.ssh/authorized_keys"), "r") as authorized_keys_file:
@@ -52,6 +57,7 @@ def get_authorized_keys_lines() -> List[str]:
     except FileNotFoundError:
         print_warning("No authorized_keys file found")
         return []
+
 
 def is_password_authentication_disabled() -> bool:
     try:
@@ -68,6 +74,7 @@ def is_password_authentication_disabled() -> bool:
         print_warning("Could not determine password authentication status")
         return None
 
+
 def is_root_login_disabled() -> bool:
     try:
         r = subprocess.run(
@@ -83,16 +90,21 @@ def is_root_login_disabled() -> bool:
         print_warning("Could not determine root login status")
         return None
 
+
 def get_private_ssh_keys() -> List[str]:
     private_keys = []
     for file in os.listdir(os.path.expanduser("~/.ssh/")):
         if os.path.isfile(os.path.expanduser("~/.ssh/") + file):
             with open(os.path.expanduser("~/.ssh/") + file, "r") as f:
                 content = f.read()
-            if "BEGIN RSA PRIVATE KEY" in content.split("\n")[0] or "BEGIN OPENSSH PRIVATE KEY" in content.split("\n")[0]:
+            if (
+                "BEGIN RSA PRIVATE KEY" in content.split("\n")[0]
+                or "BEGIN OPENSSH PRIVATE KEY" in content.split("\n")[0]
+            ):
                 private_keys.append(content)
     print_debug(f"Found {len(private_keys)} private keys")
     return private_keys
+
 
 def get_public_ssh_keys() -> List[SSHKeyFile]:
     supported_public_key_types = ["ssh-rsa"]
@@ -109,8 +121,10 @@ def get_public_ssh_keys() -> List[SSHKeyFile]:
     print_debug(f"Found {len(public_keys)} public keys")
     return public_keys
 
+
 def replace_user_path(content, user):
     return f"/home/{user}/" + content.split("/home/", 1)[1].split("/", 1)[1]
+
 
 @dataclasses.dataclass
 class SSHConfig(BaseConfig):

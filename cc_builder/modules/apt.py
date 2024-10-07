@@ -2,13 +2,13 @@ import dataclasses
 import os
 import re
 import subprocess
-from typing import Optional, Dict, List
-from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
+from typing import Dict, List, Optional
+
 from ruamel.yaml.scalarstring import PreservedScalarString as pss
 
-import yaml
+from cc_builder.console_output import print_debug, print_error, print_info, print_module_header, print_warning
+from cc_builder.custom_types import BaseConfig
 
-from not_cloud_init.custom_types import BaseConfig
 
 @dataclasses.dataclass
 class AptRepository:
@@ -46,13 +46,10 @@ def get_sources_list_lines() -> List[str]:
             if line.startswith("deb"):
                 sources_list.append(line.strip())
     print_debug(f"Found {len(sources_list)} lines in sources.list")
-    print(sources_list)
     return sources_list
 
 
 def parse_repository_line(line: str, file_path=None) -> AptRepository:
-    # if file_path:
-    # print(f"Parsing repository line from file: {file_path}")
     # Repo line format source: https://manpages.ubuntu.com/manpages/trusty/man5/sources.list.5.html
     repo_info = {}
     repo_info["original_repo_line"] = line.replace("  ", " ")  # replace double spaces with single space
@@ -151,7 +148,7 @@ class AptConfig(BaseConfig):
 
     def generate_cloud_config(self) -> Dict:
         known_sources = [repo for repo in self.sources if repo.name != "UNKNOWN"]
-        
+
         return {
             "apt": {
                 "sources": {repo.name: {"source": repo.repo_line_without_options} for repo in known_sources},

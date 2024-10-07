@@ -1,13 +1,12 @@
 import dataclasses
 import re
 import subprocess
+from typing import Dict, List, Optional
 
-from typing import Optional, Dict, List
 import yaml
 
-from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
-from not_cloud_init.custom_types import BaseConfig
-
+from cc_builder.console_output import print_debug, print_error, print_info, print_module_header, print_warning
+from cc_builder.custom_types import BaseConfig
 
 BLACKLISTED_SNAP_NAMES_REGEX_PATTERNS = [
     "^core[0-9]*",

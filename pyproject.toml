@@ -5,11 +5,11 @@ requires = ["setuptools>=42", "wheel", "mypy; extra == 'type_check'"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "not-cloud-init"
+name = "cc-builder"
 version = "0.9.4"
-description = ""
+description = "An interactive command line tool for generating cloud-config files for cloud-init"
 authors = [
-    { name="a-dubs", email="thee_dubski@guy.com" }
+    { name="a-dubs", email="alecwarren19@gmail.com" }
 ]
 readme = "README.md"
 license = { file="LICENSE" }  # TODO actually add a license to this bad boy
@@ -26,8 +26,8 @@ dependencies = [
 ]
 
 [project.scripts]
-not-cloud-init = "not_cloud_init.cli:main"
-nci = "not_cloud_init.cli:main"
+cc-builder = "cc_builder.cli:main"
+ccb = "cc_builder.cli:main"
 
 [tool.black]
 line-length = 120
