@@ -16,7 +16,6 @@ class HostnameConfig(BaseConfig):
     hostname: str = None
 
     def gather(self):
-        print_module_header("Gathering Hostname Configuration")
         self.hostname = get_hostname()
 
     def generate_cloud_config(self):
