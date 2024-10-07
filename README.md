@@ -41,6 +41,7 @@ This CLI tool gathers information from your system and generates a cloud-config 
       ```bash
       git clone https://github.com/a-dubs/cc-builder.git
       ```
+
 2. Create and activate a virtual environment (optional but recommended)
    * Install `pyvenv` (if not already installed)
    ```bash
@@ -54,6 +55,7 @@ This CLI tool gathers information from your system and generates a cloud-config 
    ```bash
    source venv/bin/activate
    ```
+
 3. Install the dependencies
    ```bash
    pip install .
@@ -62,41 +64,6 @@ This CLI tool gathers information from your system and generates a cloud-config 
    ```bash
    python -m cc_builder.cli --help
    ```
-
-### Auto install (Recommended for fresh containers/VMs only):
-
-```bash 
-curl -s https://raw.githubusercontent.com/a-dubs/cc-builder/main/install.sh -o install.sh && source install.sh
-```
-
-#### Contents of the install.sh script:
-```bash
-#!/bin/bash
-
-# Clone the repository using HTTPS
-echo "Cloning the repository..."
-git clone https://github.com/a-dubs/cc-builder.git
-cd cc-builder
-
-# Install python3-venv if not already installed
-echo "Installing python3-venv if not already installed..."
-sudo apt-get install -y python3-venv
-
-# Create and activate a virtual environment
-echo "Creating and activating virtual environment..."
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-echo "Installing dependencies..."
-pip install .
-
-# Check if the CLI is working
-echo "Checking if CLI is working..."
-python -m cc_builder.cli --help
-
-echo "Installation complete."
-```
 
 ## How to use
 
