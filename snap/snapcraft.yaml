@@ -1,4 +1,4 @@
-name: not-cloud-init
+name: cc-builder
 base: core24
 version: '0.9.4'
 summary: cloud-init user-data generator
@@ -11,13 +11,13 @@ grade: devel
 confinement: classic
 
 apps:
-  not-cloud-init:
+  cc-builder:
     environment:
       PYTHONPATH: $SNAP/lib/python3.12/site-packages/
-    command: bin/nci
+    command: bin/cc-builder
 
 parts:
-  not-cloud-init:
+  cc-builder:
     plugin: python
     source: .
     stage-packages:

@@ -3,8 +3,9 @@ import os
 import subprocess
 from typing import Dict
 
-from not_cloud_init.console_output import print_debug, print_error, print_module_header, print_warning, print_info
-from not_cloud_init.custom_types import BaseConfig
+from cc_builder.console_output import print_debug, print_error, print_info, print_module_header, print_warning
+from cc_builder.custom_types import BaseConfig
+
 
 def get_shell() -> str:
     result = subprocess.run("echo $SHELL", shell=True, stdout=subprocess.PIPE, text=True)
