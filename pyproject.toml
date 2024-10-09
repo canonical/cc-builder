@@ -12,7 +12,7 @@ authors = [
     { name="a-dubs", email="alecwarren19@gmail.com" }
 ]
 readme = "README.md"
-license = { file="LICENSE" }  # TODO actually add a license to this bad boy
+license = { file="LICENSE" }
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
